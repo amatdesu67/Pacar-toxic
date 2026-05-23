@@ -4,3 +4,5 @@
 prisma/dev.db
 prisma/migrations/
 *.pack
+
+dev.db

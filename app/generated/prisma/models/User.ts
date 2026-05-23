@@ -40,6 +40,7 @@ export type UserMinAggregateOutputType = {
   aiName: string | null
   aiGender: string | null
   toxicLevel: number | null
+  personality: string | null
   createdAt: Date | null
 }
 
@@ -49,6 +50,7 @@ export type UserMaxAggregateOutputType = {
   aiName: string | null
   aiGender: string | null
   toxicLevel: number | null
+  personality: string | null
   createdAt: Date | null
 }
 
@@ -58,6 +60,7 @@ export type UserCountAggregateOutputType = {
   aiName: number
   aiGender: number
   toxicLevel: number
+  personality: number
   createdAt: number
   _all: number
 }
@@ -77,6 +80,7 @@ export type UserMinAggregateInputType = {
   aiName?: true
   aiGender?: true
   toxicLevel?: true
+  personality?: true
   createdAt?: true
 }
 
@@ -86,6 +90,7 @@ export type UserMaxAggregateInputType = {
   aiName?: true
   aiGender?: true
   toxicLevel?: true
+  personality?: true
   createdAt?: true
 }
 
@@ -95,6 +100,7 @@ export type UserCountAggregateInputType = {
   aiName?: true
   aiGender?: true
   toxicLevel?: true
+  personality?: true
   createdAt?: true
   _all?: true
 }
@@ -191,6 +197,7 @@ export type UserGroupByOutputType = {
   aiName: string
   aiGender: string
   toxicLevel: number
+  personality: string
   createdAt: Date
   _count: UserCountAggregateOutputType | null
   _avg: UserAvgAggregateOutputType | null
@@ -223,6 +230,7 @@ export type UserWhereInput = {
   aiName?: Prisma.StringFilter<"User"> | string
   aiGender?: Prisma.StringFilter<"User"> | string
   toxicLevel?: Prisma.IntFilter<"User"> | number
+  personality?: Prisma.StringFilter<"User"> | string
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   goals?: Prisma.GoalListRelationFilter
   messages?: Prisma.MessageListRelationFilter
@@ -235,6 +243,7 @@ export type UserOrderByWithRelationInput = {
   aiName?: Prisma.SortOrder
   aiGender?: Prisma.SortOrder
   toxicLevel?: Prisma.SortOrder
+  personality?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   goals?: Prisma.GoalOrderByRelationAggregateInput
   messages?: Prisma.MessageOrderByRelationAggregateInput
@@ -250,6 +259,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   aiName?: Prisma.StringFilter<"User"> | string
   aiGender?: Prisma.StringFilter<"User"> | string
   toxicLevel?: Prisma.IntFilter<"User"> | number
+  personality?: Prisma.StringFilter<"User"> | string
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   goals?: Prisma.GoalListRelationFilter
   messages?: Prisma.MessageListRelationFilter
@@ -262,6 +272,7 @@ export type UserOrderByWithAggregationInput = {
   aiName?: Prisma.SortOrder
   aiGender?: Prisma.SortOrder
   toxicLevel?: Prisma.SortOrder
+  personality?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _avg?: Prisma.UserAvgOrderByAggregateInput
@@ -279,6 +290,7 @@ export type UserScalarWhereWithAggregatesInput = {
   aiName?: Prisma.StringWithAggregatesFilter<"User"> | string
   aiGender?: Prisma.StringWithAggregatesFilter<"User"> | string
   toxicLevel?: Prisma.IntWithAggregatesFilter<"User"> | number
+  personality?: Prisma.StringWithAggregatesFilter<"User"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
 
@@ -288,6 +300,7 @@ export type UserCreateInput = {
   aiName: string
   aiGender: string
   toxicLevel: number
+  personality?: string
   createdAt?: Date | string
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageCreateNestedManyWithoutUserInput
@@ -300,6 +313,7 @@ export type UserUncheckedCreateInput = {
   aiName: string
   aiGender: string
   toxicLevel: number
+  personality?: string
   createdAt?: Date | string
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
@@ -312,6 +326,7 @@ export type UserUpdateInput = {
   aiName?: Prisma.StringFieldUpdateOperationsInput | string
   aiGender?: Prisma.StringFieldUpdateOperationsInput | string
   toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
@@ -324,6 +339,7 @@ export type UserUncheckedUpdateInput = {
   aiName?: Prisma.StringFieldUpdateOperationsInput | string
   aiGender?: Prisma.StringFieldUpdateOperationsInput | string
   toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
@@ -336,6 +352,7 @@ export type UserCreateManyInput = {
   aiName: string
   aiGender: string
   toxicLevel: number
+  personality?: string
   createdAt?: Date | string
 }
 
@@ -345,6 +362,7 @@ export type UserUpdateManyMutationInput = {
   aiName?: Prisma.StringFieldUpdateOperationsInput | string
   aiGender?: Prisma.StringFieldUpdateOperationsInput | string
   toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -354,6 +372,7 @@ export type UserUncheckedUpdateManyInput = {
   aiName?: Prisma.StringFieldUpdateOperationsInput | string
   aiGender?: Prisma.StringFieldUpdateOperationsInput | string
   toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -363,6 +382,7 @@ export type UserCountOrderByAggregateInput = {
   aiName?: Prisma.SortOrder
   aiGender?: Prisma.SortOrder
   toxicLevel?: Prisma.SortOrder
+  personality?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -376,6 +396,7 @@ export type UserMaxOrderByAggregateInput = {
   aiName?: Prisma.SortOrder
   aiGender?: Prisma.SortOrder
   toxicLevel?: Prisma.SortOrder
+  personality?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -385,6 +406,7 @@ export type UserMinOrderByAggregateInput = {
   aiName?: Prisma.SortOrder
   aiGender?: Prisma.SortOrder
   toxicLevel?: Prisma.SortOrder
+  personality?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -461,6 +483,7 @@ export type UserCreateWithoutGoalsInput = {
   aiName: string
   aiGender: string
   toxicLevel: number
+  personality?: string
   createdAt?: Date | string
   messages?: Prisma.MessageCreateNestedManyWithoutUserInput
   dailyMoods?: Prisma.DailyMoodCreateNestedManyWithoutUserInput
@@ -472,6 +495,7 @@ export type UserUncheckedCreateWithoutGoalsInput = {
   aiName: string
   aiGender: string
   toxicLevel: number
+  personality?: string
   createdAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
   dailyMoods?: Prisma.DailyMoodUncheckedCreateNestedManyWithoutUserInput
@@ -499,6 +523,7 @@ export type UserUpdateWithoutGoalsInput = {
   aiName?: Prisma.StringFieldUpdateOperationsInput | string
   aiGender?: Prisma.StringFieldUpdateOperationsInput | string
   toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
   dailyMoods?: Prisma.DailyMoodUpdateManyWithoutUserNestedInput
@@ -510,6 +535,7 @@ export type UserUncheckedUpdateWithoutGoalsInput = {
   aiName?: Prisma.StringFieldUpdateOperationsInput | string
   aiGender?: Prisma.StringFieldUpdateOperationsInput | string
   toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
   dailyMoods?: Prisma.DailyMoodUncheckedUpdateManyWithoutUserNestedInput
@@ -521,6 +547,7 @@ export type UserCreateWithoutMessagesInput = {
   aiName: string
   aiGender: string
   toxicLevel: number
+  personality?: string
   createdAt?: Date | string
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   dailyMoods?: Prisma.DailyMoodCreateNestedManyWithoutUserInput
@@ -532,6 +559,7 @@ export type UserUncheckedCreateWithoutMessagesInput = {
   aiName: string
   aiGender: string
   toxicLevel: number
+  personality?: string
   createdAt?: Date | string
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   dailyMoods?: Prisma.DailyMoodUncheckedCreateNestedManyWithoutUserInput
@@ -559,6 +587,7 @@ export type UserUpdateWithoutMessagesInput = {
   aiName?: Prisma.StringFieldUpdateOperationsInput | string
   aiGender?: Prisma.StringFieldUpdateOperationsInput | string
   toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   dailyMoods?: Prisma.DailyMoodUpdateManyWithoutUserNestedInput
@@ -570,6 +599,7 @@ export type UserUncheckedUpdateWithoutMessagesInput = {
   aiName?: Prisma.StringFieldUpdateOperationsInput | string
   aiGender?: Prisma.StringFieldUpdateOperationsInput | string
   toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   dailyMoods?: Prisma.DailyMoodUncheckedUpdateManyWithoutUserNestedInput
@@ -581,6 +611,7 @@ export type UserCreateWithoutDailyMoodsInput = {
   aiName: string
   aiGender: string
   toxicLevel: number
+  personality?: string
   createdAt?: Date | string
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageCreateNestedManyWithoutUserInput
@@ -592,6 +623,7 @@ export type UserUncheckedCreateWithoutDailyMoodsInput = {
   aiName: string
   aiGender: string
   toxicLevel: number
+  personality?: string
   createdAt?: Date | string
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
@@ -619,6 +651,7 @@ export type UserUpdateWithoutDailyMoodsInput = {
   aiName?: Prisma.StringFieldUpdateOperationsInput | string
   aiGender?: Prisma.StringFieldUpdateOperationsInput | string
   toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
@@ -630,6 +663,7 @@ export type UserUncheckedUpdateWithoutDailyMoodsInput = {
   aiName?: Prisma.StringFieldUpdateOperationsInput | string
   aiGender?: Prisma.StringFieldUpdateOperationsInput | string
   toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
@@ -690,6 +724,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   aiName?: boolean
   aiGender?: boolean
   toxicLevel?: boolean
+  personality?: boolean
   createdAt?: boolean
   goals?: boolean | Prisma.User$goalsArgs<ExtArgs>
   messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
@@ -703,6 +738,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   aiName?: boolean
   aiGender?: boolean
   toxicLevel?: boolean
+  personality?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["user"]>
 
@@ -712,6 +748,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   aiName?: boolean
   aiGender?: boolean
   toxicLevel?: boolean
+  personality?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["user"]>
 
@@ -721,10 +758,11 @@ export type UserSelectScalar = {
   aiName?: boolean
   aiGender?: boolean
   toxicLevel?: boolean
+  personality?: boolean
   createdAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "aiName" | "aiGender" | "toxicLevel" | "createdAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "aiName" | "aiGender" | "toxicLevel" | "personality" | "createdAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   goals?: boolean | Prisma.User$goalsArgs<ExtArgs>
   messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
@@ -747,6 +785,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     aiName: string
     aiGender: string
     toxicLevel: number
+    personality: string
     createdAt: Date
   }, ExtArgs["result"]["user"]>
   composites: {}
@@ -1179,6 +1218,7 @@ export interface UserFieldRefs {
   readonly aiName: Prisma.FieldRef<"User", 'String'>
   readonly aiGender: Prisma.FieldRef<"User", 'String'>
   readonly toxicLevel: Prisma.FieldRef<"User", 'Int'>
+  readonly personality: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
 }
     

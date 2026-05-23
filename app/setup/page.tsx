@@ -4,26 +4,40 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 type GenderType = 'female' | 'male';
+type PersonalityType = 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere';
 
 const TOXIC_LABELS: Record<number, string> = {
-  1: 'Manja dikit 🥺',
-  2: 'Ngambek-ngambekan 😒',
-  3: 'Drama Medium 🎭',
-  4: 'Drama Queen/King 👑',
-  5: 'Full Toxic Mode 💀',
+  1: 'Halus banget',
+  2: 'Mulai keliatan',
+  3: 'Lumayan berasa',
+  4: 'Kental banget',
+  5: 'Full throttle',
 };
+
+const PERSONALITIES: Array<{
+  id: PersonalityType;
+  emoji: string;
+  label: string;
+  tagline: string;
+}> = [
+  { id: 'tsundere', emoji: '😤', label: 'Tsundere', tagline: 'B-bukan berarti gw peduli...' },
+  { id: 'yandere',  emoji: '🔪', label: 'Yandere',  tagline: 'Lo ga kemana-mana kan?' },
+  { id: 'kuudere',  emoji: '🧊', label: 'Kuudere',  tagline: '...oke.' },
+  { id: 'deredere', emoji: '🥰', label: 'Deredere', tagline: 'Aku suka banget sama lo ><' },
+  { id: 'himedere', emoji: '👑', label: 'Himedere', tagline: 'Kamu beruntung gw mau ngobrol.' },
+];
 
 export default function SetupPage() {
   const router = useRouter();
   const [name, setName] = useState('');
   const [aiName, setAiName] = useState('Dira');
   const [aiGender, setAiGender] = useState<GenderType>('female');
+  const [personality, setPersonality] = useState<PersonalityType>('tsundere');
   const [toxicLevel, setToxicLevel] = useState(3);
   const [goals, setGoals] = useState(['']);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Kalau udah punya userId, langsung redirect ke /chat
   useEffect(() => {
     if (localStorage.getItem('userId')) {
       router.replace('/chat');
@@ -57,7 +71,7 @@ export default function SetupPage() {
       const res = await fetch('/api/user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), aiName: aiName.trim(), aiGender, toxicLevel, goals: validGoals }),
+        body: JSON.stringify({ name: name.trim(), aiName: aiName.trim(), aiGender, personality, toxicLevel, goals: validGoals }),
       });
 
       const data = await res.json();
@@ -141,10 +155,38 @@ export default function SetupPage() {
             </div>
           </div>
 
-          {/* Toxic level slider */}
+          {/* Personality picker */}
+          <div>
+            <label className="block text-[#8696a0] text-xs uppercase tracking-wide mb-2">
+              Sifat
+            </label>
+            <div className="grid grid-cols-5 gap-1.5">
+              {PERSONALITIES.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => setPersonality(p.id)}
+                  className={`flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl text-center transition-colors ${
+                    personality === p.id
+                      ? 'bg-[#00a884] text-white'
+                      : 'bg-[#2a3942] text-[#8696a0] hover:text-[#e9edef]'
+                  }`}
+                >
+                  <span className="text-lg leading-none">{p.emoji}</span>
+                  <span className="text-[11px] font-medium leading-tight">{p.label}</span>
+                </button>
+              ))}
+            </div>
+            {/* Tagline */}
+            <p className="text-[#8696a0] text-xs mt-2 italic text-center">
+              &ldquo;{PERSONALITIES.find((p) => p.id === personality)?.tagline}&rdquo;
+            </p>
+          </div>
+
+          {/* Intensity slider */}
           <div>
             <label className="block text-[#8696a0] text-xs uppercase tracking-wide mb-1">
-              Level Toxic:{' '}
+              Intensitas:{' '}
               <span className="text-[#00a884] normal-case font-medium">
                 {TOXIC_LABELS[toxicLevel]}
               </span>
@@ -158,8 +200,8 @@ export default function SetupPage() {
               className="w-full accent-[#00a884] mt-1"
             />
             <div className="flex justify-between text-[#8696a0] text-[11px] mt-1">
-              <span>1 · Manja</span>
-              <span>5 · Full Toxic</span>
+              <span>1 · Halus</span>
+              <span>5 · Ekstrem</span>
             </div>
           </div>
 

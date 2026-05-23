@@ -77,6 +77,7 @@ export const UserScalarFieldEnum = {
   aiName: 'aiName',
   aiGender: 'aiGender',
   toxicLevel: 'toxicLevel',
+  personality: 'personality',
   createdAt: 'createdAt'
 } as const
 

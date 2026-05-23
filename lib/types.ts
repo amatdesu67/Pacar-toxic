@@ -1,3 +1,4 @@
+export type PersonalityType = 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere';
 export type MoodType = 'manja' | 'ngambek' | 'sarkas' | 'sweet';
 export type GenderType = 'female' | 'male';
 
@@ -13,6 +14,7 @@ export interface SystemPromptContext {
   userName: string;
   aiName: string;
   aiGender: GenderType;
+  personality: PersonalityType;
   toxicLevel: number;
   mood: MoodType;
   moodReason: string;

@@ -21,14 +21,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { name, aiName, aiGender, toxicLevel, goals } = body as {
+  const { name, aiName, aiGender, personality, toxicLevel, goals } = body as {
     name: string;
     aiName: string;
     aiGender: string;
+    personality: string;
     toxicLevel: number;
     goals: string[];
   };
 
+  const validPersonalities = ['tsundere', 'yandere', 'kuudere', 'deredere', 'himedere'];
   if (!name || !aiName || !aiGender || !toxicLevel || !goals?.length) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
@@ -38,6 +40,7 @@ export async function POST(request: NextRequest) {
       name: name.trim(),
       aiName: aiName.trim(),
       aiGender,
+      personality: validPersonalities.includes(personality) ? personality : 'tsundere',
       toxicLevel: Number(toxicLevel),
       goals: {
         create: goals.map((title: string) => ({ title: title.trim() })),

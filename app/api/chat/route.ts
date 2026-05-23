@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
     userName: user.name,
     aiName: user.aiName,
     aiGender: user.aiGender as 'female' | 'male',
+    personality: (user.personality ?? 'tsundere') as 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere',
     toxicLevel: user.toxicLevel,
     mood,
     moodReason: reason,

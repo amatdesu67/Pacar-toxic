@@ -12,7 +12,8 @@ model User {
   name       String
   aiName     String      @map("ai_name")
   aiGender   String      @map("ai_gender") // "female" | "male"
-  toxicLevel Int         @map("toxic_level") // 1-5
+  toxicLevel   Int         @map("toxic_level") // 1-5
+  personality  String      @default("tsundere") // "tsundere" | "yandere" | "kuudere" | "deredere" | "himedere"
   createdAt  DateTime    @default(now()) @map("created_at")
   goals      Goal[]
   messages   Message[]

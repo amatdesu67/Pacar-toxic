@@ -12,20 +12,23 @@ interface Message {
   createdAt: string;
 }
 
+type PersonalityType = 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere';
+
 interface UserInfo {
   id: string;
   name: string;
   aiName: string;
   aiGender: 'female' | 'male';
+  personality: PersonalityType;
   toxicLevel: number;
 }
 
-const TOXIC_COLORS: Record<number, string> = {
-  1: 'text-blue-400',
-  2: 'text-green-400',
-  3: 'text-yellow-400',
-  4: 'text-orange-400',
-  5: 'text-red-400',
+const PERSONALITY_LABELS: Record<PersonalityType, string> = {
+  tsundere: 'Tsundere 😤',
+  yandere: 'Yandere 🔪',
+  kuudere: 'Kuudere 🧊',
+  deredere: 'Deredere 🥰',
+  himedere: 'Himedere 👑',
 };
 
 export default function ChatPage() {
@@ -171,8 +174,7 @@ export default function ChatPage() {
         <div className="flex-1 min-w-0">
           <p className="text-[#e9edef] font-semibold text-sm truncate">{user.aiName}</p>
           <p className="text-[#8696a0] text-xs">
-            toxic level{' '}
-            <span className={TOXIC_COLORS[user.toxicLevel]}>{user.toxicLevel}/5</span>
+            {PERSONALITY_LABELS[user.personality ?? 'tsundere']}
           </p>
         </div>
         <button

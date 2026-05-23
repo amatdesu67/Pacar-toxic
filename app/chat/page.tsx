@@ -34,6 +34,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isCooldown, setIsCooldown] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -85,7 +86,7 @@ export default function ChatPage() {
 
   const sendMessage = async () => {
     const content = input.trim();
-    if (!content || isLoading || !user) return;
+    if (!content || isLoading || isCooldown || !user) return;
 
     const tempId = `temp-${Date.now()}`;
     setMessages((prev) => [
@@ -128,7 +129,11 @@ export default function ChatPage() {
       setMessages((prev) => prev.filter((m) => m.id !== tempId));
     } finally {
       setIsLoading(false);
-      setTimeout(() => textareaRef.current?.focus(), 50);
+      setIsCooldown(true);
+      setTimeout(() => {
+        setIsCooldown(false);
+        textareaRef.current?.focus();
+      }, 4000);
     }
   };
 
@@ -222,7 +227,7 @@ export default function ChatPage() {
         />
         <button
           onClick={sendMessage}
-          disabled={!input.trim() || isLoading}
+          disabled={!input.trim() || isLoading || isCooldown}
           className="w-11 h-11 rounded-full bg-[#00a884] flex items-center justify-center flex-shrink-0 hover:bg-[#06cf9c] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           aria-label="Kirim pesan"
         >

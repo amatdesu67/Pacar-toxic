@@ -10,7 +10,13 @@ import {
   formatStreakText,
 } from '@/lib/db-helpers';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '');
+const GEMINI_KEYS = [
+  process.env.GEMINI_API_KEY,
+  process.env.GEMINI_API_KEY_2,
+  process.env.GEMINI_API_KEY_3,
+  process.env.GEMINI_API_KEY_4,
+  process.env.GEMINI_API_KEY_5,
+].filter(Boolean) as string[];
 
 // Konversi message DB ke format Gemini API (user/model alternating)
 function buildGeminiHistory(
@@ -103,32 +109,37 @@ export async function POST(request: NextRequest) {
   const last10 = messagesChronological.slice(-10);
   const history = buildGeminiHistory(last10);
 
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-flash-latest',
-    systemInstruction: systemPrompt,
-    generationConfig: { maxOutputTokens: 1000 },
-    safetySettings: [
-      { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-      { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-      { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-      { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-    ],
-  });
+  const safetySettings = [
+    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+  ];
 
-  const chat = model.startChat({ history });
-  let aiText: string;
-  try {
-    const result = await chat.sendMessage(content.trim());
-    aiText = result.response.text().trim();
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes('429')) {
-      return NextResponse.json(
-        { error: 'AI lagi sibuk, tunggu bentar terus coba lagi ya 🙏' },
-        { status: 429 },
-      );
+  let aiText: string | null = null;
+  for (const key of GEMINI_KEYS) {
+    try {
+      const model = new GoogleGenerativeAI(key).getGenerativeModel({
+        model: 'gemini-flash-latest',
+        systemInstruction: systemPrompt,
+        generationConfig: { maxOutputTokens: 1000 },
+        safetySettings,
+      });
+      const result = await model.startChat({ history }).sendMessage(content.trim());
+      aiText = result.response.text().trim();
+      break;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes('429')) continue;
+      return NextResponse.json({ error: 'AI error: ' + msg }, { status: 500 });
     }
-    return NextResponse.json({ error: 'AI error: ' + msg }, { status: 500 });
+  }
+
+  if (aiText === null) {
+    return NextResponse.json(
+      { error: 'AI lagi sibuk, tunggu bentar terus coba lagi ya 🙏' },
+      { status: 429 },
+    );
   }
 
   // Simpan response AI

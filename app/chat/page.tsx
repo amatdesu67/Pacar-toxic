@@ -1,0 +1,236 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { ChatBubble } from '@/components/ChatBubble';
+import { TypingIndicator } from '@/components/TypingIndicator';
+
+interface Message {
+  id: string;
+  role: 'user' | 'ai';
+  content: string;
+  createdAt: string;
+}
+
+interface UserInfo {
+  id: string;
+  name: string;
+  aiName: string;
+  aiGender: 'female' | 'male';
+  toxicLevel: number;
+}
+
+const TOXIC_COLORS: Record<number, string> = {
+  1: 'text-blue-400',
+  2: 'text-green-400',
+  3: 'text-yellow-400',
+  4: 'text-orange-400',
+  5: 'text-red-400',
+};
+
+export default function ChatPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isFirstLoad = useRef(true);
+
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  };
+
+  const resizeTextarea = () => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 128) + 'px';
+  };
+
+  useEffect(() => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      router.replace('/setup');
+      return;
+    }
+
+    Promise.all([
+      fetch(`/api/user?userId=${userId}`).then((r) => r.json()),
+      fetch(`/api/messages?userId=${userId}&limit=50`).then((r) => r.json()),
+    ])
+      .then(([userData, messagesData]) => {
+        if (userData.error) {
+          localStorage.removeItem('userId');
+          router.replace('/setup');
+          return;
+        }
+        setUser(userData.user);
+        setMessages(messagesData.messages ?? []);
+      })
+      .finally(() => setIsInitializing(false));
+  }, [router]);
+
+  // Scroll instant saat pertama load, smooth untuk pesan baru
+  useEffect(() => {
+    if (isFirstLoad.current) {
+      scrollToBottom('instant');
+      isFirstLoad.current = false;
+    } else {
+      scrollToBottom('smooth');
+    }
+  }, [messages, isLoading]);
+
+  const sendMessage = async () => {
+    const content = input.trim();
+    if (!content || isLoading || !user) return;
+
+    const tempId = `temp-${Date.now()}`;
+    setMessages((prev) => [
+      ...prev,
+      { id: tempId, role: 'user', content, createdAt: new Date().toISOString() },
+    ]);
+    setInput('');
+    setIsLoading(true);
+
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, content }),
+      });
+
+      const data = await res.json();
+
+      if (data.message) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: data.messageId ?? `ai-${Date.now()}`,
+            role: 'ai',
+            content: data.message,
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+      } else if (data.error) {
+        setMessages((prev) => [
+          ...prev.filter((m) => m.id !== tempId),
+          { id: `err-${Date.now()}`, role: 'ai', content: data.error, createdAt: new Date().toISOString() },
+        ]);
+      }
+    } catch {
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => textareaRef.current?.focus(), 50);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('userId');
+    router.replace('/setup');
+  };
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-[#0b141a] flex items-center justify-center">
+        <p className="text-[#8696a0] text-sm animate-pulse">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  const aiAvatar = user.aiGender === 'female' ? '👩' : '👨';
+
+  return (
+    <div className="min-h-screen bg-[#0b141a] flex flex-col max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="bg-[#202c33] px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-md">
+        <div className="w-10 h-10 rounded-full bg-[#2a3942] flex items-center justify-center text-xl flex-shrink-0">
+          {aiAvatar}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[#e9edef] font-semibold text-sm truncate">{user.aiName}</p>
+          <p className="text-[#8696a0] text-xs">
+            toxic level{' '}
+            <span className={TOXIC_COLORS[user.toxicLevel]}>{user.toxicLevel}/5</span>
+          </p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="text-[#8696a0] hover:text-[#e9edef] transition-colors p-1"
+          title="Reset & setup ulang"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+            <path fillRule="evenodd" d="M11.828 2.25c-.916 0-1.699.663-1.85 1.567l-.091.549a.798.798 0 01-.517.608 7.45 7.45 0 00-.478.198.798.798 0 01-.796-.064l-.453-.324a1.875 1.875 0 00-2.416.2l-.243.243a1.875 1.875 0 00-.2 2.416l.324.453a.798.798 0 01.064.796 7.448 7.448 0 00-.198.478.798.798 0 01-.608.517l-.549.091A1.875 1.875 0 002.25 11.828v.344c0 .916.663 1.699 1.567 1.85l.549.091c.281.047.508.25.608.517.06.162.127.321.198.478a.798.798 0 01-.064.796l-.324.453a1.875 1.875 0 00.2 2.416l.243.243c.648.648 1.67.733 2.416.2l.453-.324a.798.798 0 01.796-.064c.157.071.316.138.478.198.267.1.47.327.517.608l.091.549c.15.904.933 1.567 1.85 1.567h.344c.916 0 1.699-.663 1.85-1.567l.091-.549a.798.798 0 01.517-.608 7.52 7.52 0 00.478-.198.798.798 0 01.796.064l.453.324a1.875 1.875 0 002.416-.2l.243-.243c.648-.648.733-1.67.2-2.416l-.324-.453a.798.798 0 01-.064-.796c.071-.157.138-.316.198-.478.1-.267.327-.47.608-.517l.549-.091A1.875 1.875 0 0021.75 12.172v-.344c0-.916-.663-1.699-1.567-1.85l-.549-.091a.798.798 0 01-.608-.517 7.507 7.507 0 00-.198-.478.798.798 0 01.064-.796l.324-.453a1.875 1.875 0 00-.2-2.416l-.243-.243a1.875 1.875 0 00-2.416-.2l-.453.324a.798.798 0 01-.796.064 7.462 7.462 0 00-.478-.198.798.798 0 01-.517-.608l-.091-.549c-.15-.904-.933-1.567-1.85-1.567h-.344zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clipRule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-3 pt-4 pb-2">
+        {messages.length === 0 && !isLoading && (
+          <div className="text-center text-[#8696a0] text-sm mt-16 space-y-2">
+            <p className="text-3xl">{aiAvatar}</p>
+            <p className="font-medium text-[#e9edef]">{user.aiName}</p>
+            <p className="text-xs">Mulai chat — cerita apa aja dulu</p>
+          </div>
+        )}
+
+        {messages.map((msg) => (
+          <ChatBubble
+            key={msg.id}
+            message={msg}
+            aiGender={user.aiGender}
+          />
+        ))}
+
+        {isLoading && <TypingIndicator aiGender={user.aiGender} />}
+
+        <div ref={messagesEndRef} className="h-2" />
+      </div>
+
+      {/* Input */}
+      <div className="bg-[#202c33] px-3 py-3 flex gap-2 items-end sticky bottom-0">
+        <textarea
+          ref={textareaRef}
+          value={input}
+          onChange={(e) => {
+            setInput(e.target.value);
+            resizeTextarea();
+          }}
+          onKeyDown={handleKeyDown}
+          placeholder={isLoading ? 'Lagi ngetik...' : 'Pesan'}
+          rows={1}
+          className="flex-1 bg-[#2a3942] text-[#e9edef] placeholder-[#8696a0] rounded-2xl px-4 py-2.5 resize-none outline-none text-sm leading-relaxed transition-opacity"
+          style={{ minHeight: '42px', maxHeight: '128px' }}
+          disabled={isLoading}
+        />
+        <button
+          onClick={sendMessage}
+          disabled={!input.trim() || isLoading}
+          className="w-11 h-11 rounded-full bg-[#00a884] flex items-center justify-center flex-shrink-0 hover:bg-[#06cf9c] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          aria-label="Kirim pesan"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-5 h-5 translate-x-0.5">
+            <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}

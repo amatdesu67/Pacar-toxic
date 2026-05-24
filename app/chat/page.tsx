@@ -265,10 +265,11 @@ export default function ChatPage() {
             key={msg.id}
             message={msg}
             aiGender={user.aiGender}
+            aiPhotoUrl={user.aiPhotoUrl}
           />
         ))}
 
-        {isLoading && <TypingIndicator aiGender={user.aiGender} />}
+        {isLoading && <TypingIndicator aiGender={user.aiGender} aiPhotoUrl={user.aiPhotoUrl} />}
 
         <div ref={messagesEndRef} className="h-2" />
       </div>

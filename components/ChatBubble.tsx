@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface Message {
   id: string;
   role: 'user' | 'ai';
@@ -8,6 +10,7 @@ interface Message {
 interface ChatBubbleProps {
   message: Message;
   aiGender: 'female' | 'male';
+  aiPhotoUrl?: string | null;
 }
 
 function stripMarkdown(text: string): string {
@@ -18,7 +21,7 @@ function stripMarkdown(text: string): string {
     .replace(/`(.*?)`/g, '$1');
 }
 
-export function ChatBubble({ message, aiGender }: ChatBubbleProps) {
+export function ChatBubble({ message, aiGender, aiPhotoUrl }: ChatBubbleProps) {
   const isUser = message.role === 'user';
   const time = new Date(message.createdAt).toLocaleTimeString('id-ID', {
     hour: '2-digit',
@@ -31,8 +34,12 @@ export function ChatBubble({ message, aiGender }: ChatBubbleProps) {
   return (
     <div className={`flex gap-2 mb-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
-        <div className="w-8 h-8 rounded-full bg-[#2a3942] flex items-center justify-center text-base flex-shrink-0 self-end mb-1">
-          {aiAvatar}
+        <div className="w-8 h-8 rounded-full bg-[#2a3942] flex items-center justify-center text-base flex-shrink-0 self-end mb-1 overflow-hidden relative">
+          {aiPhotoUrl ? (
+            <Image src={aiPhotoUrl} alt="avatar" fill className="object-cover" sizes="32px" />
+          ) : (
+            aiAvatar
+          )}
         </div>
       )}
 

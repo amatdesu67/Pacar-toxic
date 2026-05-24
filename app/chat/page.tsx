@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { ChatBubble } from '@/components/ChatBubble';
 import { TypingIndicator } from '@/components/TypingIndicator';
 
@@ -21,6 +22,7 @@ interface UserInfo {
   aiGender: 'female' | 'male';
   personality: PersonalityType;
   toxicLevel: number;
+  aiPhotoUrl?: string | null;
 }
 
 const PERSONALITY_LABELS: Record<PersonalityType, string> = {
@@ -41,7 +43,9 @@ export default function ChatPage() {
   const [isInitializing, setIsInitializing] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isFirstLoad = useRef(true);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -152,6 +156,27 @@ export default function ChatPage() {
     router.replace('/setup');
   };
 
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setIsUploadingPhoto(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('userId', user.id);
+
+    try {
+      const res = await fetch('/api/user/avatar', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.url) {
+        setUser((prev) => prev ? { ...prev, aiPhotoUrl: data.url } : prev);
+      }
+    } finally {
+      setIsUploadingPhoto(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   if (isInitializing) {
     return (
       <div className="min-h-screen bg-[#0b141a] flex items-center justify-center">
@@ -166,11 +191,42 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen bg-[#0b141a] flex flex-col max-w-2xl mx-auto">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handlePhotoChange}
+      />
+
       {/* Header */}
       <div className="bg-[#202c33] px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-md">
-        <div className="w-10 h-10 rounded-full bg-[#2a3942] flex items-center justify-center text-xl flex-shrink-0">
-          {aiAvatar}
-        </div>
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="w-10 h-10 rounded-full bg-[#2a3942] flex items-center justify-center text-xl flex-shrink-0 overflow-hidden relative group"
+          title="Ganti foto profil"
+          disabled={isUploadingPhoto}
+        >
+          {user.aiPhotoUrl ? (
+            <Image src={user.aiPhotoUrl} alt={user.aiName} fill className="object-cover" sizes="40px" />
+          ) : (
+            aiAvatar
+          )}
+          {isUploadingPhoto && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+          {!isUploadingPhoto && (
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-4 h-4">
+                <path d="M12 9a3.75 3.75 0 100 7.5A3.75 3.75 0 0012 9z" />
+                <path fillRule="evenodd" d="M9.344 3.071a49.52 49.52 0 015.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 01-3 3h-15a3 3 0 01-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 001.11-.71l.822-1.315a2.942 2.942 0 012.332-1.39zM6.75 12.75a5.25 5.25 0 1110.5 0 5.25 5.25 0 01-10.5 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+          )}
+        </button>
         <div className="flex-1 min-w-0">
           <p className="text-[#e9edef] font-semibold text-sm truncate">{user.aiName}</p>
           <p className="text-[#8696a0] text-xs">
@@ -191,8 +247,14 @@ export default function ChatPage() {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-3 pt-4 pb-2">
         {messages.length === 0 && !isLoading && (
-          <div className="text-center text-[#8696a0] text-sm mt-16 space-y-2">
-            <p className="text-3xl">{aiAvatar}</p>
+          <div className="text-center text-[#8696a0] text-sm mt-16 space-y-2 flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-[#2a3942] flex items-center justify-center text-4xl overflow-hidden relative">
+              {user.aiPhotoUrl ? (
+                <Image src={user.aiPhotoUrl} alt={user.aiName} fill className="object-cover" sizes="64px" />
+              ) : (
+                aiAvatar
+              )}
+            </div>
             <p className="font-medium text-[#e9edef]">{user.aiName}</p>
             <p className="text-xs">Mulai chat — cerita apa aja dulu</p>
           </div>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import Groq from 'groq-sdk';
 import { prisma } from '@/lib/prisma';
 import { buildSystemPrompt } from '@/lib/prompts';
 import { getOrCreateDailyMood } from '@/lib/mood';
@@ -10,32 +10,32 @@ import {
   formatStreakText,
 } from '@/lib/db-helpers';
 
-const GEMINI_KEYS = [
-  process.env.GEMINI_API_KEY,
-  process.env.GEMINI_API_KEY_2,
-  process.env.GEMINI_API_KEY_3,
-  process.env.GEMINI_API_KEY_4,
-  process.env.GEMINI_API_KEY_5,
-  process.env.GEMINI_API_KEY_6,
-  process.env.GEMINI_API_KEY_7,
-  process.env.GEMINI_API_KEY_8,
-  process.env.GEMINI_API_KEY_9,
-  process.env.GEMINI_API_KEY_10,
+const GROQ_KEYS = [
+  process.env.GROQ_API_KEY,
+  process.env.GROQ_API_KEY_2,
+  process.env.GROQ_API_KEY_3,
+  process.env.GROQ_API_KEY_4,
+  process.env.GROQ_API_KEY_5,
+  process.env.GROQ_API_KEY_6,
+  process.env.GROQ_API_KEY_7,
+  process.env.GROQ_API_KEY_8,
+  process.env.GROQ_API_KEY_9,
+  process.env.GROQ_API_KEY_10,
 ].filter(Boolean) as string[];
 
-// Konversi message DB ke format Gemini API (user/model alternating)
-function buildGeminiHistory(
+// Konversi message DB ke format Groq/OpenAI (user/assistant alternating)
+function buildGroqHistory(
   dbMessages: Array<{ role: string; content: string }>,
-): Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> {
-  const result: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
+): Array<{ role: 'user' | 'assistant'; content: string }> {
+  const result: Array<{ role: 'user' | 'assistant'; content: string }> = [];
 
   for (const msg of dbMessages) {
-    const role: 'user' | 'model' = msg.role === 'user' ? 'user' : 'model';
+    const role: 'user' | 'assistant' = msg.role === 'user' ? 'user' : 'assistant';
     // Merge kalau role sama berturut-turut
     if (result.length > 0 && result[result.length - 1].role === role) {
-      result[result.length - 1].parts[0].text += '\n' + msg.content;
+      result[result.length - 1].content += '\n' + msg.content;
     } else {
-      result.push({ role, parts: [{ text: msg.content }] });
+      result.push({ role, content: msg.content });
     }
   }
 
@@ -43,8 +43,8 @@ function buildGeminiHistory(
   while (result.length > 0 && result[0].role !== 'user') {
     result.shift();
   }
-  // Hapus dari belakang kalau terakhir bukan 'user' (pesan baru akan dikirim via sendMessage)
-  if (result.length > 0 && result[result.length - 1].role !== 'user') {
+  // Hapus dari belakang kalau terakhir bukan 'assistant' (pesan user baru akan ditambah manual)
+  if (result.length > 0 && result[result.length - 1].role !== 'assistant') {
     result.pop();
   }
 
@@ -113,30 +113,28 @@ export async function POST(request: NextRequest) {
 
   // Pakai 10 pesan terakhir sebagai history (exclude pesan terbaru yang baru disimpan)
   const last10 = messagesChronological.slice(-10);
-  const history = buildGeminiHistory(last10);
+  const history = buildGroqHistory(last10);
 
-  const safetySettings = [
-    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+  const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+    { role: 'system', content: systemPrompt },
+    ...history,
+    { role: 'user', content: content.trim() },
   ];
 
   let aiText: string | null = null;
-  for (const key of GEMINI_KEYS) {
+  for (const key of GROQ_KEYS) {
     try {
-      const model = new GoogleGenerativeAI(key).getGenerativeModel({
-        model: 'gemini-flash-latest',
-        systemInstruction: systemPrompt,
-        generationConfig: { maxOutputTokens: 1000 },
-        safetySettings,
+      const groq = new Groq({ apiKey: key });
+      const result = await groq.chat.completions.create({
+        model: 'llama-3.3-70b-versatile',
+        messages,
+        max_tokens: 1000,
       });
-      const result = await model.startChat({ history }).sendMessage(content.trim());
-      aiText = result.response.text().trim();
-      break;
+      aiText = result.choices[0]?.message?.content?.trim() ?? null;
+      if (aiText) break;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes('429')) continue;
+      if (msg.includes('429') || msg.includes('rate_limit')) continue;
       return NextResponse.json({ error: 'AI error: ' + msg }, { status: 500 });
     }
   }

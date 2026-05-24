@@ -233,6 +233,15 @@ export default function ChatPage() {
             {PERSONALITY_LABELS[user.personality ?? 'tsundere']}
           </p>
         </div>
+        <a
+          href="/health"
+          className="text-[#8696a0] hover:text-[#e9edef] transition-colors p-1"
+          title="Cek status API key"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+            <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.127 1.706l-.909 3.714c-.361 1.476.667 2.859 2.197 2.859a.75.75 0 000-1.5.648.648 0 01-.633-.334.648.648 0 01.096-.67l.909-3.714c.61-2.492-1.972-4.572-4.307-3.438a.75.75 0 00.52 1.402zm1.544-5.308a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clipRule="evenodd" />
+          </svg>
+        </a>
         <button
           onClick={handleLogout}
           className="text-[#8696a0] hover:text-[#e9edef] transition-colors p-1"

@@ -9,8 +9,8 @@ const geistSans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'AI Pacar Toxic',
-  description: 'Chat sama pacar virtual yang toxic-supportive. Drama, sindiran, tapi genuinely care.',
+  title: 'Pacar AI',
+  description: 'Chat sama pacar virtual dengan personality unik. Tsundere, yandere, kuudere, deredere, atau himedere—pilih sendiri.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

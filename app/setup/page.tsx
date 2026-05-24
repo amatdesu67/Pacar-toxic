@@ -93,9 +93,9 @@ export default function SetupPage() {
     <div className="min-h-screen bg-[#0b141a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-[#e9edef]">AI Pacar Toxic</h1>
+          <h1 className="text-3xl font-bold text-[#e9edef]">Pacar AI</h1>
           <p className="text-[#8696a0] text-sm mt-2">
-            Setup dulu sebelum mulai drama 💔
+            Setup dulu sebelum mulai ngobrol 💬
           </p>
         </div>
 

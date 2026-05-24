@@ -1,6 +1,6 @@
-# AI Pacar Toxic 💔
+# Pacar AI 💬
 
-Chat app dengan AI pacar virtual yang punya kepribadian **toxic-supportive**. Dia bantu lo disiplin sama daily goals lewat sindiran, drama, dan ngambek — tapi di baliknya genuinely care.
+Chat app dengan AI pacar virtual yang punya **5 personality unik** (tsundere, yandere, kuudere, deredere, himedere). Dia bantu lo disiplin sama daily goals dengan caranya masing-masing — sesuai kepribadian yang lo pilih.
 
 ## Stack
 

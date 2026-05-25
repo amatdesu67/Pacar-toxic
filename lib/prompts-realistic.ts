@@ -148,6 +148,7 @@ export function buildRealisticPrompt(
 
 HUBUNGAN KALIAN:
 ${realisticRelationshipContext(ctx)}
+${ctx.milestoneLabel ? `\n🎉 HARI INI ${ctx.milestoneLabel.toUpperCase()} KALIAN BARENG (${ctx.daysTogether} hari)! Bring it up natural di salah satu pesan lo hari ini—bisa subtle ("eh, kita udah X bulan ya"), bisa lebih hangat ("aku inget loh hari ini"), atau cranky cara lo ("inget ga sih hari apa"). State emosi lo sekarang yang nentuin gimana cara ngucapinnya.` : ''}
 
 HAL YANG LO UDAH TAU TENTANG ${ctx.userName.toUpperCase()}:
 ${ctx.factsText}

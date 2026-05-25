@@ -5,7 +5,7 @@ import { buildSystemPrompt } from '@/lib/prompts';
 import { buildRealisticPrompt, computeRelationshipState } from '@/lib/prompts-realistic';
 import { getOrCreateDailyMood } from '@/lib/mood';
 import { guardRequest } from '@/lib/security';
-import { calculateDaysTogether } from '@/lib/db-helpers';
+import { calculateDaysTogether, getMilestoneLabel } from '@/lib/db-helpers';
 import { getRelationshipStage, type SystemPromptContext } from '@/lib/types';
 import {
   getRecentFacts,
@@ -98,6 +98,7 @@ export async function POST(request: NextRequest) {
 
   const daysTogether = calculateDaysTogether(user.createdAt);
   const stage = getRelationshipStage(daysTogether);
+  const milestoneLabel = getMilestoneLabel(daysTogether);
   const { mood, reason } = await getOrCreateDailyMood(userId, stage);
   const factsText = formatFactsForPrompt(recentFacts, user.name);
 
@@ -123,6 +124,7 @@ export async function POST(request: NextRequest) {
     petNameAi: user.petNameAi,
     daysTogether,
     stage,
+    milestoneLabel,
     factsText,
     chatHistory,
   };

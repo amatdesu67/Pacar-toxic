@@ -26,15 +26,27 @@ interface UserInfo {
   createdAt?: string;
 }
 
+const MILESTONES: Record<number, string> = {
+  1: '1 hari', 7: '1 minggu', 30: '1 bulan',
+  50: '50 hari', 100: '100 hari', 180: '6 bulan',
+  365: '1 tahun', 730: '2 tahun',
+};
+
+function daysTogether(createdAt?: string): number {
+  if (!createdAt) return 0;
+  return Math.max(0, Math.floor((Date.now() - new Date(createdAt).getTime()) / 86400000));
+}
+
 function formatDaysTogether(createdAt?: string): string | null {
   if (!createdAt) return null;
-  const days = Math.max(0, Math.floor((Date.now() - new Date(createdAt).getTime()) / 86400000));
-  const milestones: Record<number, string> = {
-    1: '1 hari 🎉', 7: '1 minggu 🎉', 30: '1 bulan 🎉',
-    50: '50 hari 🎉', 100: '100 hari 🎉', 180: '6 bulan 🎉',
-    365: '1 tahun 🎉', 730: '2 tahun 🎉',
-  };
-  return milestones[days] ?? `${days} hari bareng 💕`;
+  const days = daysTogether(createdAt);
+  const milestone = MILESTONES[days];
+  return milestone ? `${milestone} 🎉` : `${days} hari bareng 💕`;
+}
+
+function getMilestone(createdAt?: string): string | null {
+  if (!createdAt) return null;
+  return MILESTONES[daysTogether(createdAt)] ?? null;
 }
 
 const PERSONALITY_LABELS: Record<PersonalityType, string> = {
@@ -285,6 +297,19 @@ export default function ChatPage() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-3 pt-4 pb-2">
+        {/* Milestone banner */}
+        {getMilestone(user.createdAt) && (
+          <div className="mb-3 mx-auto max-w-xs bg-gradient-to-r from-[#00a884]/20 to-[#06cf9c]/20 border border-[#00a884]/40 rounded-2xl px-4 py-3 text-center">
+            <p className="text-2xl mb-1">🎉</p>
+            <p className="text-[#e9edef] text-sm font-semibold">
+              Hari ini {getMilestone(user.createdAt)} kalian bareng!
+            </p>
+            <p className="text-[#8696a0] text-xs mt-0.5">
+              {daysTogether(user.createdAt)} hari sejak hari pertama
+            </p>
+          </div>
+        )}
+
         {messages.length === 0 && !isLoading && (
           <div className="text-center text-[#8696a0] text-sm mt-16 space-y-2 flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-[#2a3942] flex items-center justify-center text-4xl overflow-hidden relative">

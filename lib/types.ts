@@ -23,6 +23,7 @@ export interface SystemPromptContext {
   petNameAi?: string | null;   // panggilan user ke AI (untuk konteks)
   daysTogether: number;        // hari sejak user dibuat
   stage: RelationshipStage;
+  milestoneLabel?: string | null; // diisi kalo hari ini milestone (e.g. "1 bulan")
   factsText: string;           // formatted facts yang AI udah tau tentang user
   chatHistory: string;
 }

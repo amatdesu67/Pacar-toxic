@@ -23,8 +23,8 @@ const GROQ_KEYS = [
 
 // Model murah & cepat khusus buat extraction (limit 14,400/hari)
 const EXTRACTION_MODEL = 'llama-3.1-8b-instant';
-const MAX_FACTS_PER_USER = 150;
-const MAX_FACTS_INJECTED = 20;
+const MAX_FACTS_PER_USER = 200;
+const MAX_FACTS_INJECTED = 30;
 
 interface ExtractedFact {
   category: FactCategory;

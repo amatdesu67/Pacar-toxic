@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     prisma.message.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
-      take: 40,
+      take: 80,
       select: { role: true, content: true, createdAt: true },
     }),
     getRecentFacts(userId),
@@ -141,10 +141,11 @@ export async function POST(request: NextRequest) {
     data: { userId, role: 'user', content: content.trim() },
   });
 
-  // Pakai 25 pesan terakhir sebagai history (exclude pesan terbaru yang baru disimpan).
-  // Naik dari 10 supaya AI inget konteks lebih jauh ke belakang—jangan amnesia di tengah chat panjang.
-  const last25 = messagesChronological.slice(-25);
-  const history = buildGroqHistory(last25);
+  // Pakai 50 pesan terakhir sebagai history (exclude pesan terbaru yang baru disimpan).
+  // Bertambah dari 25 supaya AI inget konteks lebih jauh ke belakang—buat chat super panjang.
+  // Kalau model TPM-nya overload, fallback chain otomatis turun ke model dengan TPM lebih gede.
+  const last50 = messagesChronological.slice(-50);
+  const history = buildGroqHistory(last50);
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: systemPrompt },

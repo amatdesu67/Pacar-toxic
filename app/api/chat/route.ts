@@ -7,6 +7,7 @@ import { getOrCreateDailyMood } from '@/lib/mood';
 import { guardRequest } from '@/lib/security';
 import { calculateDaysTogether, getMilestoneLabel } from '@/lib/db-helpers';
 import { getRelationshipStage, type SystemPromptContext } from '@/lib/types';
+import { buildTimeContext, formatTimeForPrompt } from '@/lib/time-context';
 import {
   getRecentFacts,
   formatFactsForPrompt,
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
   if (blocked) return blocked;
 
   const body = await request.json();
-  const { userId, content } = body as { userId: string; content: string };
+  const { userId, content, timezone } = body as { userId: string; content: string; timezone?: string };
 
   if (!userId || !content?.trim()) {
     return NextResponse.json({ error: 'Missing userId or content' }, { status: 400 });
@@ -101,6 +102,7 @@ export async function POST(request: NextRequest) {
   const milestoneLabel = getMilestoneLabel(daysTogether);
   const { mood, reason } = await getOrCreateDailyMood(userId, stage);
   const factsText = formatFactsForPrompt(recentFacts, user.name);
+  const timeText = formatTimeForPrompt(buildTimeContext(timezone));
 
   const messagesChronological = [...recentMessages].reverse();
 
@@ -118,6 +120,7 @@ export async function POST(request: NextRequest) {
     stage,
     milestoneLabel,
     factsText,
+    timeText,
   };
 
   const userMode = (user.mode ?? 'anime') as 'anime' | 'realistic';

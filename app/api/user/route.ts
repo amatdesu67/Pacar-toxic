@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   if (blocked) return blocked;
 
   const body = await request.json();
-  const { name, aiName, aiGender, personality, mode, toxicLevel, petNameUser, petNameAi } = body as {
+  const { name, aiName, aiGender, personality, mode, toxicLevel, petNameUser, petNameAi, timezone } = body as {
     name: string;
     aiName: string;
     aiGender: string;
@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
     toxicLevel: number;
     petNameUser?: string;
     petNameAi?: string;
+    timezone?: string;
   };
 
   const validPersonalities = ['tsundere', 'yandere', 'kuudere', 'deredere', 'himedere'];
@@ -69,6 +70,7 @@ export async function POST(request: NextRequest) {
       petNameUser: user.petNameUser,
       petNameAi: user.petNameAi,
       mode: user.mode as 'anime' | 'realistic',
+      timezone,
     });
     if (welcome) {
       await prisma.message.create({

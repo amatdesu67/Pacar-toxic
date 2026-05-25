@@ -1,5 +1,6 @@
 import Groq from 'groq-sdk';
 import type { PersonalityType, GenderType } from '@/lib/types';
+import { buildTimeContext, formatTimeForPrompt } from '@/lib/time-context';
 
 const GROQ_KEYS = [
   process.env.GROQ_API_KEY,
@@ -18,6 +19,7 @@ interface ProactiveContext {
   petNameUser?: string | null; // panggilan AI ke user
   petNameAi?: string | null;   // panggilan user ke AI
   mode: 'anime' | 'realistic';
+  timezone?: string | null;
 }
 
 interface ReturningContext extends ProactiveContext {
@@ -79,10 +81,14 @@ export async function generateWelcomeMessage(ctx: ProactiveContext): Promise<str
   const aiNickNote = ctx.petNameAi
     ? `${ctx.userName} bakal manggil lo "${ctx.petNameAi}".`
     : '';
+  const timeText = formatTimeForPrompt(buildTimeContext(ctx.timezone));
 
   const systemPrompt = `Lo adalah ${ctx.aiName}, ${gender} yang baru aja "match" sama ${ctx.userName} di app ini. Ini PESAN PERTAMA lo ke dia—hari pertama PDKT.
 
 Personality lo: ${PERSONALITY_TONES[ctx.personality]}
+
+WAKTU SEKARANG: ${timeText}
+(Boleh reference waktu kalo natural—pagi: "udah bangun ya?", malem: "belom tidur?". Tapi ga harus.)
 
 ${petNote}
 ${aiNickNote}
@@ -118,10 +124,14 @@ export async function generateReturningMessage(ctx: ReturningContext): Promise<s
   const petNote = ctx.petNameUser
     ? `Lo manggil ${ctx.userName} dengan "${ctx.petNameUser}".`
     : '';
+  const timeText = formatTimeForPrompt(buildTimeContext(ctx.timezone));
 
   const systemPrompt = `Lo adalah ${ctx.aiName}, ${gender}, pacar virtual ${ctx.userName}. Lo udah pacaran ${ctx.daysTogether} hari. ${ctx.userName} baru aja muncul lagi setelah ${gapNote} ga ada kabar.
 
 Personality lo: ${PERSONALITY_TONES[ctx.personality]}
+
+WAKTU SEKARANG: ${timeText}
+(Sesuaikan greeting sama waktu—pagi & gap kemarin malem = "baru bangun ya?", malem & gap dari siang = "kemana aja seharian?".)
 
 ${petNote}
 

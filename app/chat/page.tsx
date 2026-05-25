@@ -109,10 +109,11 @@ export default function ChatPage() {
           const hoursAway = (Date.now() - new Date(lastMsg.createdAt).getTime()) / 3600000;
           if (hoursAway >= 6) {
             try {
+              const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
               const res = await fetch('/api/chat/proactive', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId }),
+                body: JSON.stringify({ userId, timezone: tz }),
               });
               const data = await res.json();
               if (data.message) {
@@ -162,10 +163,11 @@ export default function ChatPage() {
     }
 
     try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, content }),
+        body: JSON.stringify({ userId: user.id, content, timezone }),
       });
 
       const data = await res.json();

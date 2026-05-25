@@ -79,6 +79,7 @@ export default function SetupPage() {
     setError('');
 
     try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const res = await fetch('/api/user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -91,6 +92,7 @@ export default function SetupPage() {
           toxicLevel,
           petNameUser: petNameUser.trim(),
           petNameAi: petNameAi.trim(),
+          timezone,
         }),
       });
 

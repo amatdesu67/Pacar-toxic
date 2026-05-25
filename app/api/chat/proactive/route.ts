@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   if (blocked) return blocked;
 
   const body = await request.json();
-  const { userId } = body as { userId: string };
+  const { userId, timezone } = body as { userId: string; timezone?: string };
   if (!userId) {
     return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
   }
@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
     mode: user.mode as 'anime' | 'realistic',
     hoursAway,
     daysTogether: calculateDaysTogether(user.createdAt),
+    timezone,
   });
 
   if (!text) {

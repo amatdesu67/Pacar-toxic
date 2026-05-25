@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 type GenderType = 'female' | 'male';
 type PersonalityType = 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere';
+type ModeType = 'anime' | 'realistic';
 
 const TOXIC_LABELS: Record<number, string> = {
   1: 'Halus banget',
@@ -33,6 +34,7 @@ export default function SetupPage() {
   const [aiName, setAiName] = useState('Dira');
   const [aiGender, setAiGender] = useState<GenderType>('female');
   const [personality, setPersonality] = useState<PersonalityType>('tsundere');
+  const [mode, setMode] = useState<ModeType>('anime');
   const [toxicLevel, setToxicLevel] = useState(3);
   const [goals, setGoals] = useState(['']);
   const [isLoading, setIsLoading] = useState(false);
@@ -71,7 +73,7 @@ export default function SetupPage() {
       const res = await fetch('/api/user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name.trim(), aiName: aiName.trim(), aiGender, personality, toxicLevel, goals: validGoals }),
+        body: JSON.stringify({ name: name.trim(), aiName: aiName.trim(), aiGender, personality, mode, toxicLevel, goals: validGoals }),
       });
 
       const data = await res.json();
@@ -180,6 +182,41 @@ export default function SetupPage() {
             {/* Tagline */}
             <p className="text-[#8696a0] text-xs mt-2 italic text-center">
               &ldquo;{PERSONALITIES.find((p) => p.id === personality)?.tagline}&rdquo;
+            </p>
+          </div>
+
+          {/* Mode toggle */}
+          <div>
+            <label className="block text-[#8696a0] text-xs uppercase tracking-wide mb-2">
+              Mode Response
+            </label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setMode('anime')}
+                className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors ${
+                  mode === 'anime' ? 'bg-[#00a884] text-white' : 'bg-[#2a3942] text-[#8696a0]'
+                }`}
+              >
+                🎌 Anime
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('realistic')}
+                className={`flex-1 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors relative ${
+                  mode === 'realistic' ? 'bg-[#00a884] text-white' : 'bg-[#2a3942] text-[#8696a0]'
+                }`}
+              >
+                💬 Realistic
+                <span className="absolute -top-1.5 -right-1.5 bg-[#f0b429] text-[#0b141a] text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                  BETA
+                </span>
+              </button>
+            </div>
+            <p className="text-[#8696a0] text-xs mt-2 leading-relaxed">
+              {mode === 'anime'
+                ? 'Karakter anime klasik dengan trope khas (tsundere, yandere, dll).'
+                : '⚠️ More immersive & emotionally realistic responses. Bisa terasa kayak chat sama mantan.'}
             </p>
           </div>
 

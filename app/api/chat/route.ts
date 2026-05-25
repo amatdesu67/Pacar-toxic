@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 import { prisma } from '@/lib/prisma';
 import { buildSystemPrompt } from '@/lib/prompts';
+import { buildRealisticPrompt, computeRelationshipState } from '@/lib/prompts-realistic';
 import { getOrCreateDailyMood } from '@/lib/mood';
 import {
   getGoalsWithProgress,
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       where: { userId },
       orderBy: { createdAt: 'desc' },
       take: 20,
-      select: { role: true, content: true },
+      select: { role: true, content: true, createdAt: true },
     }),
   ]);
 
@@ -92,19 +93,46 @@ export async function POST(request: NextRequest) {
           .join('\n')
       : '(belum ada riwayat chat)';
 
-  const systemPrompt = buildSystemPrompt({
-    userName: user.name,
-    aiName: user.aiName,
-    aiGender: user.aiGender as 'female' | 'male',
-    personality: (user.personality ?? 'tsundere') as 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere',
-    toxicLevel: user.toxicLevel,
-    mood,
-    moodReason: reason,
-    goals: goalsWithProgress,
-    progressText: formatProgressText(goalsWithProgress),
-    streakText: formatStreakText(goalsWithProgress),
-    chatHistory,
-  });
+  const userMode = (user.mode ?? 'anime') as 'anime' | 'realistic';
+  let systemPrompt: string;
+
+  if (userMode === 'realistic') {
+    const { state, reason: stateReason } = computeRelationshipState(
+      messagesChronological as Array<{ role: 'user' | 'ai'; content: string; createdAt: Date }>,
+      user.name,
+    );
+    systemPrompt = buildRealisticPrompt(
+      {
+        userName: user.name,
+        aiName: user.aiName,
+        aiGender: user.aiGender as 'female' | 'male',
+        personality: (user.personality ?? 'tsundere') as 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere',
+        toxicLevel: user.toxicLevel,
+        mood,
+        moodReason: reason,
+        goals: goalsWithProgress,
+        progressText: formatProgressText(goalsWithProgress),
+        streakText: formatStreakText(goalsWithProgress),
+        chatHistory,
+      },
+      state,
+      stateReason,
+    );
+  } else {
+    systemPrompt = buildSystemPrompt({
+      userName: user.name,
+      aiName: user.aiName,
+      aiGender: user.aiGender as 'female' | 'male',
+      personality: (user.personality ?? 'tsundere') as 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere',
+      toxicLevel: user.toxicLevel,
+      mood,
+      moodReason: reason,
+      goals: goalsWithProgress,
+      progressText: formatProgressText(goalsWithProgress),
+      streakText: formatStreakText(goalsWithProgress),
+      chatHistory,
+    });
+  }
 
   // Simpan pesan user dulu sebelum panggil Gemini
   await prisma.message.create({

@@ -24,13 +24,13 @@ const GROQ_KEYS = [
   process.env.GROQ_API_KEY_10,
 ].filter(Boolean) as string[];
 
-// Model bisa di-override via env var. Default: gpt-oss-120b (OpenAI open-source, paling capable di Groq).
-// Fallback chain (urut): kalau primary 404 → coba berikutnya, dst.
-const PRIMARY_MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b';
+// Model bisa di-override via env var. Default: llama-4-scout (proven nyentil + TPM cukup).
+// gpt-oss-120b lebih capable tapi TPM 8K-nya kekecilan buat system prompt kita yang complex.
+const PRIMARY_MODEL = process.env.GROQ_MODEL ?? 'meta-llama/llama-4-scout-17b-16e-instruct';
 const FALLBACK_MODELS = [
-  'meta-llama/llama-4-scout-17b-16e-instruct', // newer gen Llama
-  'llama-3.3-70b-versatile',                   // proven mid-tier
-  'llama-3.1-8b-instant',                      // last resort, limit longgar
+  'llama-3.3-70b-versatile',                    // proven mid-tier
+  'openai/gpt-oss-120b',                        // capable banget tapi TPM 8K, butuh prompt pendek
+  'llama-3.1-8b-instant',                       // last resort, limit longgar, shallow
 ];
 
 // Konversi message DB ke format Groq/OpenAI (user/assistant alternating)
@@ -177,11 +177,15 @@ export async function POST(request: NextRequest) {
         if (aiText) break outer;
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
-        // Rate-limited → coba key berikutnya dengan model yang sama
+        // Rate-limited per-key → coba key berikutnya dengan model yang sama
         if (msg.includes('429') || msg.includes('rate_limit')) continue;
-        // Model ga tersedia / decommissioned → coba model fallback berikutnya
+        // Model ga tersedia / decommissioned → langsung skip ke model fallback
         if (msg.includes('model_not_found') || msg.includes('404') || msg.includes('decommissioned')) {
-          break; // keluar dari loop key, coba model berikutnya
+          break;
+        }
+        // TPM/context limit → model ini ga muat prompt kita, skip ke fallback yang TPM-nya lebih besar
+        if (msg.includes('413') || msg.includes('Request too large') || msg.includes('tokens per minute') || msg.includes('context_length')) {
+          break;
         }
         return NextResponse.json({ error: 'AI error: ' + msg }, { status: 500 });
       }

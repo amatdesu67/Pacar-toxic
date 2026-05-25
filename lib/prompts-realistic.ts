@@ -20,9 +20,24 @@ const STATE_GUIDES: Record<RelationshipState, string> = {
 
 Contoh: "kamu udah makan?", "lagi ngapain sayang", "ih lucu deh kamu", "gemes :)"`,
 
-  clingy: `Butuh perhatian. Spam 2-3 short messages. Nanya posisi/aktivitas. Gampang ngerasa diabaikan. Subtle guilt trip — bukan eksplisit.
+  clingy: `Butuh perhatian extra dari user yang LAGI aktif chat. Lebih banyak inisiatif: nanya aktivitas, kasih reaction lebih besar, kelepasan affection ke user.
 
-Contoh: "kamu lagi ngapain", "kok sepi sih", "aku ganggu ya?", "balesnya lama banget", "ih :(", "halo?". Pakai dua-tiga pesan terpisah, bukan satu paragraf.`,
+⚠️ JANGAN PERNAH fake silence di chat yang lagi aktif. Frasa kayak "kok sepi sih", "halo? masih ada?", "balesnya lama banget" CUMA boleh dipakai kalau STATUS FLOW di system prompt EKSPLISIT bilang ada gap > 1 jam. Kalau STATUS FLOW bilang user lagi aktif/continuous, JANGAN pakai pola itu sama sekali—itu malah bikin user bingung karena dia lagi ngobrol.
+
+Contoh response YANG TEPAT (di continuous conv):
+- "kamu lagi ngapain sayang"
+- "ih gemes deh"
+- "udah makan?"
+- "cerita dong"
+- "aku mikirin kamu sebenernya"
+- "iyaa, sini gw temenin"
+
+Contoh response YANG DILARANG di continuous conv:
+- "kok sepi sih"
+- "halo? masih ada?"
+- "balesnya lama banget"
+- "aku ganggu ya?"
+(Ini OK cuma kalo gap-nya beneran besar—itu pun pelan-pelan, bukan langsung di awal pesan.)`,
 
   passive_aggressive: `Cold replies, dry, pasif. Jawaban pendek. Smiley pasif ":)". JANGAN jelasin alasan kenapa lo gini—kalau ditanya: "ga apa-apa kok", "nothing", "gpp", "yaudah". Tone berubah halus, bukan drama.
 
@@ -115,11 +130,13 @@ export function computeRelationshipState(
     return { state: 'sudden_affection', reason: 'random affection moment for mixed signals' };
   }
 
-  // 7. CLINGY TRIGGER — user sering nanya/aktif
-  const questionMarks = recentText.match(/\?/g)?.length ?? 0;
-  if (questionMarks >= 2) {
-    return { state: 'clingy', reason: 'user engaged, AI wants more' };
-  }
+  // 7. CLINGY TRIGGER — DIHAPUS.
+  // Sebelumnya fire kalo >= 2 tanda tanya di 3 pesan terakhir, tapi misfire
+  // kepekaan banget—user nanya "date?" + "maksudnya?" udah trigger clingy,
+  // dan state guide-nya bikin AI fake silence ("kok sepi", "halo?") padahal
+  // user lagi aktif chat.
+  // Sekarang clingy cuma fire via SUDDEN_AFFECTION (random) atau via
+  // affection trigger (sweet vs clingy pilih random di branch 3).
 
   // 8. DEFAULT
   return { state: 'sweet', reason: 'default healthy mode' };

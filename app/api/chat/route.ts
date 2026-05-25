@@ -24,6 +24,11 @@ const GROQ_KEYS = [
   process.env.GROQ_API_KEY_10,
 ].filter(Boolean) as string[];
 
+// Model bisa di-override via env var. Default: kimi-k2 (best buat character/roleplay).
+// Fallback list dipakai kalau model utama error (404, decommissioned, dll).
+const PRIMARY_MODEL = process.env.GROQ_MODEL ?? 'moonshotai/kimi-k2-instruct';
+const FALLBACK_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+
 // Konversi message DB ke format Groq/OpenAI (user/assistant alternating)
 function buildGroqHistory(
   dbMessages: Array<{ role: string; content: string }>,
@@ -149,21 +154,33 @@ export async function POST(request: NextRequest) {
     { role: 'user', content: content.trim() },
   ];
 
+  const modelsToTry = [PRIMARY_MODEL, ...FALLBACK_MODELS.filter((m) => m !== PRIMARY_MODEL)];
+
   let aiText: string | null = null;
-  for (const key of GROQ_KEYS) {
-    try {
-      const groq = new Groq({ apiKey: key });
-      const result = await groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile',
-        messages,
-        max_tokens: 1000,
-      });
-      aiText = result.choices[0]?.message?.content?.trim() ?? null;
-      if (aiText) break;
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes('429') || msg.includes('rate_limit')) continue;
-      return NextResponse.json({ error: 'AI error: ' + msg }, { status: 500 });
+  outer: for (const model of modelsToTry) {
+    for (const key of GROQ_KEYS) {
+      try {
+        const groq = new Groq({ apiKey: key });
+        const result = await groq.chat.completions.create({
+          model,
+          messages,
+          max_tokens: 1000,
+          temperature: 0.85,
+          frequency_penalty: 0.3,
+          presence_penalty: 0.2,
+        });
+        aiText = result.choices[0]?.message?.content?.trim() ?? null;
+        if (aiText) break outer;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        // Rate-limited → coba key berikutnya dengan model yang sama
+        if (msg.includes('429') || msg.includes('rate_limit')) continue;
+        // Model ga tersedia / decommissioned → coba model fallback berikutnya
+        if (msg.includes('model_not_found') || msg.includes('404') || msg.includes('decommissioned')) {
+          break; // keluar dari loop key, coba model berikutnya
+        }
+        return NextResponse.json({ error: 'AI error: ' + msg }, { status: 500 });
+      }
     }
   }
 

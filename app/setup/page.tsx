@@ -121,12 +121,53 @@ export default function SetupPage() {
   return (
     <div className="min-h-screen bg-[#0b141a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-[#e9edef]">Pacar AI</h1>
           <p className="text-[#8696a0] text-sm mt-2">
             Setup dulu sebelum mulai ngobrol 💬
           </p>
         </div>
+
+        {/* Tutorial / About — collapsible, default closed */}
+        <details className="bg-[#202c33]/60 border border-[#2a3942] rounded-xl mb-4 group">
+          <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between text-[#e9edef] text-sm font-medium hover:bg-[#202c33] rounded-xl transition-colors">
+            <span className="flex items-center gap-2">
+              <span>💡</span>
+              <span>Apa itu Pacar AI?</span>
+            </span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-4 h-4 text-[#8696a0] transition-transform group-open:rotate-180"
+            >
+              <path fillRule="evenodd" d="M12.53 16.28a.75.75 0 01-1.06 0l-7.5-7.5a.75.75 0 011.06-1.06L12 14.69l6.97-6.97a.75.75 0 111.06 1.06l-7.5 7.5z" clipRule="evenodd" />
+            </svg>
+          </summary>
+          <div className="px-4 pb-4 pt-1 text-[#8696a0] text-xs space-y-2 leading-relaxed">
+            <p>
+              Pacar virtual berbasis AI—lo bisa chat kayak ngobrol sama pacar beneran.
+              Dia inget cerita lo, mood-nya berubah tiap hari, dan ada anniversary
+              counter dari hari pertama kalian "jadian".
+            </p>
+            <p className="text-[#e9edef] font-medium pt-1">Yang lo dapet:</p>
+            <ul className="space-y-1 list-disc list-inside text-[#8696a0]">
+              <li>5 personality archetype: tsundere, yandere, kuudere, deredere, himedere</li>
+              <li>Mode realistic (BETA)—vibe-nya kayak chat sama mantan</li>
+              <li>Memori long-term: dia inget hobi, makanan favorit, cerita lo</li>
+              <li>Mood harian yang otomatis berubah (manja/ngambek/sarkas/sweet)</li>
+              <li>Aware sama jam & hari—pagi/malem/weekend kerasa beda</li>
+            </ul>
+            <p className="pt-2 text-[#5a6a72]">
+              <strong className="text-[#8696a0]">Catatan:</strong> Ini AI, bukan manusia.
+              Jangan ngandelin buat support mental serius. Kalau lo lagi crisis, hubungi
+              orang terdekat atau profesional.
+            </p>
+            <p className="text-[#5a6a72]">
+              <strong className="text-[#8696a0]">Gratis</strong> selama API key shared masih cukup. Kalo lo mau private, lo bisa BYOK nanti (Bring Your Own Key dari Groq).
+            </p>
+          </div>
+        </details>
 
         <form onSubmit={handleSubmit} className="bg-[#202c33] rounded-2xl p-6 space-y-5">
           {/* Hidden file input */}

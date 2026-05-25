@@ -80,6 +80,25 @@ export default function ChatPage() {
   const isFirstLoad = useRef(true);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [todayMood, setTodayMood] = useState<{ mood: MoodType; reason: string } | null>(null);
+  const [showMoodPicker, setShowMoodPicker] = useState(false);
+  const [isChangingMood, setIsChangingMood] = useState(false);
+
+  const changeMood = async (newMood: MoodType) => {
+    if (!user || isChangingMood) return;
+    setIsChangingMood(true);
+    try {
+      const res = await fetch('/api/mood/today', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, mood: newMood }),
+      });
+      const data = await res.json();
+      if (data.mood) setTodayMood({ mood: data.mood, reason: data.reason });
+      setShowMoodPicker(false);
+    } finally {
+      setIsChangingMood(false);
+    }
+  };
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -297,12 +316,48 @@ export default function ChatPage() {
               {formatDaysTogether(user.createdAt) ?? PERSONALITY_LABELS[user.personality ?? 'tsundere']}
             </p>
             {todayMood && (
-              <span
-                className={`flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium ${MOOD_STYLES[todayMood.mood].bg} ${MOOD_STYLES[todayMood.mood].text}`}
-                title={todayMood.reason}
-              >
-                {MOOD_STYLES[todayMood.mood].emoji} {MOOD_STYLES[todayMood.mood].label}
-              </span>
+              <div className="relative flex-shrink-0">
+                <button
+                  onClick={() => setShowMoodPicker((s) => !s)}
+                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium hover:opacity-80 transition-opacity ${MOOD_STYLES[todayMood.mood].bg} ${MOOD_STYLES[todayMood.mood].text}`}
+                  title={`${todayMood.reason} (klik buat ganti)`}
+                  disabled={isChangingMood}
+                >
+                  {MOOD_STYLES[todayMood.mood].emoji} {MOOD_STYLES[todayMood.mood].label}
+                </button>
+                {showMoodPicker && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setShowMoodPicker(false)}
+                    />
+                    <div className="absolute top-full left-0 mt-1 z-20 bg-[#2a3942] border border-[#3b4a54] rounded-xl shadow-lg p-2 min-w-[180px] space-y-1">
+                      <p className="text-[#8696a0] text-[10px] uppercase tracking-wide px-2 pt-1 pb-0.5">
+                        Ganti mood hari ini
+                      </p>
+                      {(['manja', 'sweet', 'sarkas', 'ngambek'] as MoodType[]).map((m) => (
+                        <button
+                          key={m}
+                          onClick={() => changeMood(m)}
+                          disabled={isChangingMood || todayMood.mood === m}
+                          className={`w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-colors ${
+                            todayMood.mood === m
+                              ? `${MOOD_STYLES[m].bg} ${MOOD_STYLES[m].text} cursor-default`
+                              : 'text-[#e9edef] hover:bg-[#3b4a54]'
+                          }`}
+                        >
+                          <span className="text-base">{MOOD_STYLES[m].emoji}</span>
+                          <span className="font-medium">{MOOD_STYLES[m].label}</span>
+                          {todayMood.mood === m && <span className="ml-auto text-[10px]">aktif</span>}
+                        </button>
+                      ))}
+                      <p className="text-[#5a6a72] text-[10px] px-2 pt-1 leading-tight">
+                        Reset otomatis besok pagi.
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
             )}
           </div>
         </div>

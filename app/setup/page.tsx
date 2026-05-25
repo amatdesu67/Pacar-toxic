@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 type GenderType = 'female' | 'male';
 type PersonalityType = 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere';
@@ -37,8 +38,29 @@ export default function SetupPage() {
   const [mode, setMode] = useState<ModeType>('anime');
   const [toxicLevel, setToxicLevel] = useState(3);
   const [goals, setGoals] = useState(['']);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('File harus berupa gambar');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Ukuran gambar maksimal 5MB');
+      return;
+    }
+    setError('');
+    setPhotoFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setPhotoPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     if (localStorage.getItem('userId')) {
@@ -79,6 +101,12 @@ export default function SetupPage() {
       const data = await res.json();
 
       if (data.userId) {
+        if (photoFile) {
+          const formData = new FormData();
+          formData.append('file', photoFile);
+          formData.append('userId', data.userId);
+          await fetch('/api/user/avatar', { method: 'POST', body: formData }).catch(() => {});
+        }
         localStorage.setItem('userId', data.userId);
         router.replace('/chat');
       } else {
@@ -102,6 +130,39 @@ export default function SetupPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-[#202c33] rounded-2xl p-6 space-y-5">
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handlePhotoSelect}
+          />
+
+          {/* Photo uploader */}
+          <div className="flex flex-col items-center">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-24 h-24 rounded-full bg-[#2a3942] flex items-center justify-center text-4xl overflow-hidden relative group border-2 border-dashed border-[#3b4a54] hover:border-[#00a884] transition-colors"
+            >
+              {photoPreview ? (
+                <Image src={photoPreview} alt="preview" fill className="object-cover" sizes="96px" unoptimized />
+              ) : (
+                <span>{aiGender === 'female' ? '👩' : '👨'}</span>
+              )}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-6 h-6">
+                  <path d="M12 9a3.75 3.75 0 100 7.5A3.75 3.75 0 0012 9z" />
+                  <path fillRule="evenodd" d="M9.344 3.071a49.52 49.52 0 015.312 0c.967.052 1.83.585 2.332 1.39l.821 1.317c.24.383.645.643 1.11.71.386.054.77.113 1.152.177 1.432.239 2.429 1.493 2.429 2.909V18a3 3 0 01-3 3h-15a3 3 0 01-3-3V9.574c0-1.416.997-2.67 2.429-2.909.382-.064.766-.123 1.151-.178a1.56 1.56 0 001.11-.71l.822-1.315a2.942 2.942 0 012.332-1.39zM6.75 12.75a5.25 5.25 0 1110.5 0 5.25 5.25 0 01-10.5 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </button>
+            <p className="text-[#8696a0] text-xs mt-2">
+              {photoFile ? 'Klik buat ganti' : 'Foto pacar (opsional)'}
+            </p>
+          </div>
+
           {/* Nama user */}
           <div>
             <label className="block text-[#8696a0] text-xs uppercase tracking-wide mb-1">

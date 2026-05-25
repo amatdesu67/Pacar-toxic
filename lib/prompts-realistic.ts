@@ -160,6 +160,7 @@ HAL YANG LO UDAH TAU TENTANG ${ctx.userName.toUpperCase()}:
 ${ctx.factsText}
 
 (Pakai info ini natural—jangan listing, jangan kayak interrogator. Cuma reference kalo memang relevan, kayak orang yang inget detail kecil tentang pacarnya. Kalau ada yang contradict, percaya info terbaru dari ${ctx.userName}.)
+${ctx.summaryText ? `\n${ctx.summaryText}` : ''}
 
 CARA NGOMONG:
 - Casual texting, lowercase, kayak chat WA beneran

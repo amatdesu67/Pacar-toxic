@@ -14,6 +14,11 @@ import {
   extractAndSaveFacts,
   shouldExtract,
 } from '@/lib/memory';
+import {
+  formatSummaryForPrompt,
+  generateAndSaveSummary,
+  shouldSummarize,
+} from '@/lib/summary';
 
 const GROQ_KEYS = [
   process.env.GROQ_API_KEY,
@@ -102,6 +107,7 @@ export async function POST(request: NextRequest) {
   const milestoneLabel = getMilestoneLabel(daysTogether);
   const { mood, reason } = await getOrCreateDailyMood(userId, stage);
   const factsText = formatFactsForPrompt(recentFacts, user.name);
+  const summaryText = formatSummaryForPrompt(user.conversationSummary, user.name);
   const timeText = formatTimeForPrompt(buildTimeContext(timezone));
 
   const messagesChronological = [...recentMessages].reverse();
@@ -120,6 +126,7 @@ export async function POST(request: NextRequest) {
     stage,
     milestoneLabel,
     factsText,
+    summaryText,
     timeText,
   };
 
@@ -199,8 +206,19 @@ export async function POST(request: NextRequest) {
     data: { userId, role: 'ai', content: aiText },
   });
 
-  // Trigger fact extraction async (fire-and-forget). Setiap 4 pesan AI.
+  // Hitung total AI messages (perkiraan dari window terakhir + 1 yang baru saja disimpan).
+  // Untuk summary, kita butuh angka yang lebih akurat—query langsung kalau triggering.
   const aiMessageCount = messagesChronological.filter((m) => m.role === 'ai').length + 1;
+
+  // Trigger background summarization setiap 20 pesan AI (fire-and-forget).
+  // Hitung total dari DB biar akurat (window 50 ga cukup).
+  prisma.message.count({ where: { userId, role: 'ai' } }).then((totalAi) => {
+    if (shouldSummarize(totalAi)) {
+      void generateAndSaveSummary(userId, user.name, user.aiName).catch(() => {});
+    }
+  }).catch(() => {});
+
+  // Trigger fact extraction async (fire-and-forget). Setiap 2 pesan AI.
   if (shouldExtract(aiMessageCount)) {
     // Bangun chat untuk extraction termasuk pesan user terakhir + balasan AI baru
     const extractionMessages = [

@@ -57,6 +57,15 @@ const PERSONALITY_LABELS: Record<PersonalityType, string> = {
   himedere: 'Himedere 👑',
 };
 
+type MoodType = 'manja' | 'ngambek' | 'sarkas' | 'sweet';
+
+const MOOD_STYLES: Record<MoodType, { emoji: string; label: string; bg: string; text: string }> = {
+  manja:   { emoji: '🥺', label: 'Manja',   bg: 'bg-pink-500/15',    text: 'text-pink-300' },
+  ngambek: { emoji: '😤', label: 'Ngambek', bg: 'bg-red-500/15',     text: 'text-red-300' },
+  sarkas:  { emoji: '😏', label: 'Sarkas',  bg: 'bg-yellow-500/15',  text: 'text-yellow-300' },
+  sweet:   { emoji: '🥰', label: 'Sweet',   bg: 'bg-emerald-500/15', text: 'text-emerald-300' },
+};
+
 export default function ChatPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserInfo | null>(null);
@@ -70,6 +79,7 @@ export default function ChatPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isFirstLoad = useRef(true);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [todayMood, setTodayMood] = useState<{ mood: MoodType; reason: string } | null>(null);
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -92,8 +102,10 @@ export default function ChatPage() {
     Promise.all([
       fetch(`/api/user?userId=${userId}`).then((r) => r.json()),
       fetch(`/api/messages?userId=${userId}&limit=50`).then((r) => r.json()),
+      fetch(`/api/mood/today?userId=${userId}`).then((r) => r.json()).catch(() => null),
     ])
-      .then(async ([userData, messagesData]) => {
+      .then(async ([userData, messagesData, moodData]) => {
+        if (moodData?.mood) setTodayMood({ mood: moodData.mood, reason: moodData.reason });
         if (userData.error) {
           localStorage.removeItem('userId');
           router.replace('/setup');
@@ -280,9 +292,19 @@ export default function ChatPage() {
         </button>
         <div className="flex-1 min-w-0">
           <p className="text-[#e9edef] font-semibold text-sm truncate">{user.aiName}</p>
-          <p className="text-[#8696a0] text-xs truncate">
-            {formatDaysTogether(user.createdAt) ?? PERSONALITY_LABELS[user.personality ?? 'tsundere']}
-          </p>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <p className="text-[#8696a0] text-xs truncate flex-shrink min-w-0">
+              {formatDaysTogether(user.createdAt) ?? PERSONALITY_LABELS[user.personality ?? 'tsundere']}
+            </p>
+            {todayMood && (
+              <span
+                className={`flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium ${MOOD_STYLES[todayMood.mood].bg} ${MOOD_STYLES[todayMood.mood].text}`}
+                title={todayMood.reason}
+              >
+                {MOOD_STYLES[todayMood.mood].emoji} {MOOD_STYLES[todayMood.mood].label}
+              </span>
+            )}
+          </div>
         </div>
         <a
           href="/memory"

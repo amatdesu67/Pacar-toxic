@@ -81,6 +81,8 @@ export const UserScalarFieldEnum = {
   aiPhotoUrl: 'aiPhotoUrl',
   petNameUser: 'petNameUser',
   petNameAi: 'petNameAi',
+  conversationSummary: 'conversationSummary',
+  summaryUpdatedAt: 'summaryUpdatedAt',
   createdAt: 'createdAt'
 } as const
 

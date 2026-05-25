@@ -18,6 +18,8 @@ model User {
   aiPhotoUrl   String?     @map("ai_photo_url")
   petNameUser  String?     @map("pet_name_user") // panggilan AI ke user
   petNameAi    String?     @map("pet_name_ai")   // panggilan user ke AI
+  conversationSummary String?   @map("conversation_summary") // ringkasan chat lama (di luar 50 pesan terakhir)
+  summaryUpdatedAt    DateTime? @map("summary_updated_at")
   createdAt    DateTime    @default(now()) @map("created_at")
   messages     Message[]
   dailyMoods   DailyMood[]

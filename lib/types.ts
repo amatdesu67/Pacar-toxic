@@ -25,5 +25,6 @@ export interface SystemPromptContext {
   stage: RelationshipStage;
   milestoneLabel?: string | null; // diisi kalo hari ini milestone (e.g. "1 bulan")
   factsText: string;           // formatted facts yang AI udah tau tentang user
+  summaryText: string;         // ringkasan chat lama (di luar 50 pesan terakhir)
   timeText: string;            // konteks waktu sekarang (jam, hari, tanggal)
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { guardRequest } from '@/lib/security';
 
 export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get('userId');
@@ -20,6 +21,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Guard: 5 user creation per IP per jam (prevent spam akun)
+  const blocked = guardRequest(request, {
+    rateLimit: { limit: 5, windowMs: 60 * 60 * 1000 },
+  });
+  if (blocked) return blocked;
+
   const body = await request.json();
   const { name, aiName, aiGender, personality, mode, toxicLevel, goals } = body as {
     name: string;

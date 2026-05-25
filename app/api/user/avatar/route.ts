@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cloudinary } from '@/lib/cloudinary';
 import { prisma } from '@/lib/prisma';
+import { guardRequest } from '@/lib/security';
 
 export async function POST(request: NextRequest) {
+  // Guard: 10 upload per IP per jam (prevent Cloudinary abuse)
+  const blocked = guardRequest(request, {
+    rateLimit: { limit: 10, windowMs: 60 * 60 * 1000 },
+  });
+  if (blocked) return blocked;
+
   const formData = await request.formData();
   const file = formData.get('file') as File | null;
   const userId = formData.get('userId') as string | null;

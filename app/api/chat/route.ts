@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { buildSystemPrompt } from '@/lib/prompts';
 import { buildRealisticPrompt, computeRelationshipState } from '@/lib/prompts-realistic';
 import { getOrCreateDailyMood } from '@/lib/mood';
+import { guardRequest } from '@/lib/security';
 import {
   getGoalsWithProgress,
   calculateStreakScore,
@@ -62,6 +63,12 @@ function buildGroqHistory(
 }
 
 export async function POST(request: NextRequest) {
+  // Guard: cek origin + rate limit (30 chat per IP per jam)
+  const blocked = guardRequest(request, {
+    rateLimit: { limit: 30, windowMs: 60 * 60 * 1000 },
+  });
+  if (blocked) return blocked;
+
   const body = await request.json();
   const { userId, content } = body as { userId: string; content: string };
 

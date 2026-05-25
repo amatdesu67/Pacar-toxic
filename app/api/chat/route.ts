@@ -5,12 +5,8 @@ import { buildSystemPrompt } from '@/lib/prompts';
 import { buildRealisticPrompt, computeRelationshipState } from '@/lib/prompts-realistic';
 import { getOrCreateDailyMood } from '@/lib/mood';
 import { guardRequest } from '@/lib/security';
-import {
-  getGoalsWithProgress,
-  calculateStreakScore,
-  formatProgressText,
-  formatStreakText,
-} from '@/lib/db-helpers';
+import { calculateDaysTogether } from '@/lib/db-helpers';
+import { getRelationshipStage, type SystemPromptContext } from '@/lib/types';
 
 const GROQ_KEYS = [
   process.env.GROQ_API_KEY,
@@ -78,26 +74,22 @@ export async function POST(request: NextRequest) {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: { goals: true },
   });
 
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  // Ambil semua data konteks secara paralel
-  const [goalsWithProgress, recentMessages] = await Promise.all([
-    getGoalsWithProgress(userId, 7),
-    prisma.message.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-      select: { role: true, content: true, createdAt: true },
-    }),
-  ]);
+  const recentMessages = await prisma.message.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+    take: 20,
+    select: { role: true, content: true, createdAt: true },
+  });
 
-  const streakScore = calculateStreakScore(goalsWithProgress);
-  const { mood, reason } = await getOrCreateDailyMood(userId, streakScore);
+  const daysTogether = calculateDaysTogether(user.createdAt);
+  const stage = getRelationshipStage(daysTogether);
+  const { mood, reason } = await getOrCreateDailyMood(userId, stage);
 
   const messagesChronological = [...recentMessages].reverse();
 
@@ -109,6 +101,21 @@ export async function POST(request: NextRequest) {
           .join('\n')
       : '(belum ada riwayat chat)';
 
+  const promptCtx: SystemPromptContext = {
+    userName: user.name,
+    aiName: user.aiName,
+    aiGender: user.aiGender as 'female' | 'male',
+    personality: (user.personality ?? 'tsundere') as 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere',
+    toxicLevel: user.toxicLevel,
+    mood,
+    moodReason: reason,
+    petNameUser: user.petNameUser,
+    petNameAi: user.petNameAi,
+    daysTogether,
+    stage,
+    chatHistory,
+  };
+
   const userMode = (user.mode ?? 'anime') as 'anime' | 'realistic';
   let systemPrompt: string;
 
@@ -117,37 +124,9 @@ export async function POST(request: NextRequest) {
       messagesChronological as Array<{ role: 'user' | 'ai'; content: string; createdAt: Date }>,
       user.name,
     );
-    systemPrompt = buildRealisticPrompt(
-      {
-        userName: user.name,
-        aiName: user.aiName,
-        aiGender: user.aiGender as 'female' | 'male',
-        personality: (user.personality ?? 'tsundere') as 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere',
-        toxicLevel: user.toxicLevel,
-        mood,
-        moodReason: reason,
-        goals: goalsWithProgress,
-        progressText: formatProgressText(goalsWithProgress),
-        streakText: formatStreakText(goalsWithProgress),
-        chatHistory,
-      },
-      state,
-      stateReason,
-    );
+    systemPrompt = buildRealisticPrompt(promptCtx, state, stateReason);
   } else {
-    systemPrompt = buildSystemPrompt({
-      userName: user.name,
-      aiName: user.aiName,
-      aiGender: user.aiGender as 'female' | 'male',
-      personality: (user.personality ?? 'tsundere') as 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere',
-      toxicLevel: user.toxicLevel,
-      mood,
-      moodReason: reason,
-      goals: goalsWithProgress,
-      progressText: formatProgressText(goalsWithProgress),
-      streakText: formatStreakText(goalsWithProgress),
-      chatHistory,
-    });
+    systemPrompt = buildSystemPrompt(promptCtx);
   }
 
   // Simpan pesan user dulu sebelum panggil Gemini

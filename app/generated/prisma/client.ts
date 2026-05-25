@@ -47,16 +47,6 @@ export { Prisma }
  */
 export type User = Prisma.UserModel
 /**
- * Model Goal
- * 
- */
-export type Goal = Prisma.GoalModel
-/**
- * Model ProgressLog
- * 
- */
-export type ProgressLog = Prisma.ProgressLogModel
-/**
  * Model Message
  * 
  */

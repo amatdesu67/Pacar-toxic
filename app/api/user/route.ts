@@ -10,7 +10,6 @@ export async function GET(request: NextRequest) {
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: { goals: { orderBy: { createdAt: 'asc' } } },
   });
 
   if (!user) {
@@ -28,19 +27,20 @@ export async function POST(request: NextRequest) {
   if (blocked) return blocked;
 
   const body = await request.json();
-  const { name, aiName, aiGender, personality, mode, toxicLevel, goals } = body as {
+  const { name, aiName, aiGender, personality, mode, toxicLevel, petNameUser, petNameAi } = body as {
     name: string;
     aiName: string;
     aiGender: string;
     personality: string;
     mode?: string;
     toxicLevel: number;
-    goals: string[];
+    petNameUser?: string;
+    petNameAi?: string;
   };
 
   const validPersonalities = ['tsundere', 'yandere', 'kuudere', 'deredere', 'himedere'];
   const validModes = ['anime', 'realistic'];
-  if (!name || !aiName || !aiGender || !toxicLevel || !goals?.length) {
+  if (!name || !aiName || !aiGender || !toxicLevel) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
@@ -52,9 +52,8 @@ export async function POST(request: NextRequest) {
       personality: validPersonalities.includes(personality) ? personality : 'tsundere',
       mode: validModes.includes(mode ?? '') ? mode! : 'anime',
       toxicLevel: Number(toxicLevel),
-      goals: {
-        create: goals.map((title: string) => ({ title: title.trim() })),
-      },
+      petNameUser: petNameUser?.trim() || null,
+      petNameAi: petNameAi?.trim() || null,
     },
   });
 

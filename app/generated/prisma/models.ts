@@ -9,8 +9,6 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/User'
-export type * from './models/Goal'
-export type * from './models/ProgressLog'
 export type * from './models/Message'
 export type * from './models/DailyMood'
 export type * from './commonInputTypes'

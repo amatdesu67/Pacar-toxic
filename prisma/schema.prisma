@@ -8,41 +8,21 @@ datasource db {
 }
 
 model User {
-  id         String      @id @default(cuid())
-  name       String
-  aiName     String      @map("ai_name")
-  aiGender   String      @map("ai_gender") // "female" | "male"
+  id           String      @id @default(cuid())
+  name         String
+  aiName       String      @map("ai_name")
+  aiGender     String      @map("ai_gender") // "female" | "male"
   toxicLevel   Int         @map("toxic_level") // 1-5
   personality  String      @default("tsundere") // "tsundere" | "yandere" | "kuudere" | "deredere" | "himedere"
   mode         String      @default("anime") // "anime" | "realistic"
   aiPhotoUrl   String?     @map("ai_photo_url")
-  createdAt  DateTime    @default(now()) @map("created_at")
-  goals      Goal[]
-  messages   Message[]
-  dailyMoods DailyMood[]
+  petNameUser  String?     @map("pet_name_user") // panggilan AI ke user
+  petNameAi    String?     @map("pet_name_ai")   // panggilan user ke AI
+  createdAt    DateTime    @default(now()) @map("created_at")
+  messages     Message[]
+  dailyMoods   DailyMood[]
 
   @@map("users")
-}
-
-model Goal {
-  id           String        @id @default(cuid())
-  userId       String        @map("user_id")
-  title        String
-  createdAt    DateTime      @default(now()) @map("created_at")
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  progressLogs ProgressLog[]
-
-  @@map("goals")
-}
-
-model ProgressLog {
-  id          String   @id @default(cuid())
-  goalId      String   @map("goal_id")
-  completedAt DateTime @default(now()) @map("completed_at")
-  source      String   @default("chat") // "chat" | "manual"
-  goal        Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
-
-  @@map("progress_logs")
 }
 
 model Message {

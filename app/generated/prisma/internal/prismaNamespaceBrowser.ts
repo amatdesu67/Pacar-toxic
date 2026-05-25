@@ -52,8 +52,6 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
-  Goal: 'Goal',
-  ProgressLog: 'ProgressLog',
   Message: 'Message',
   DailyMood: 'DailyMood'
 } as const
@@ -80,30 +78,12 @@ export const UserScalarFieldEnum = {
   personality: 'personality',
   mode: 'mode',
   aiPhotoUrl: 'aiPhotoUrl',
+  petNameUser: 'petNameUser',
+  petNameAi: 'petNameAi',
   createdAt: 'createdAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const GoalScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  title: 'title',
-  createdAt: 'createdAt'
-} as const
-
-export type GoalScalarFieldEnum = (typeof GoalScalarFieldEnum)[keyof typeof GoalScalarFieldEnum]
-
-
-export const ProgressLogScalarFieldEnum = {
-  id: 'id',
-  goalId: 'goalId',
-  completedAt: 'completedAt',
-  source: 'source'
-} as const
-
-export type ProgressLogScalarFieldEnum = (typeof ProgressLogScalarFieldEnum)[keyof typeof ProgressLogScalarFieldEnum]
 
 
 export const MessageScalarFieldEnum = {

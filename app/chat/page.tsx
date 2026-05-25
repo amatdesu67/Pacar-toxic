@@ -23,6 +23,18 @@ interface UserInfo {
   personality: PersonalityType;
   toxicLevel: number;
   aiPhotoUrl?: string | null;
+  createdAt?: string;
+}
+
+function formatDaysTogether(createdAt?: string): string | null {
+  if (!createdAt) return null;
+  const days = Math.max(0, Math.floor((Date.now() - new Date(createdAt).getTime()) / 86400000));
+  const milestones: Record<number, string> = {
+    1: '1 hari 🎉', 7: '1 minggu 🎉', 30: '1 bulan 🎉',
+    50: '50 hari 🎉', 100: '100 hari 🎉', 180: '6 bulan 🎉',
+    365: '1 tahun 🎉', 730: '2 tahun 🎉',
+  };
+  return milestones[days] ?? `${days} hari bareng 💕`;
 }
 
 const PERSONALITY_LABELS: Record<PersonalityType, string> = {
@@ -229,8 +241,8 @@ export default function ChatPage() {
         </button>
         <div className="flex-1 min-w-0">
           <p className="text-[#e9edef] font-semibold text-sm truncate">{user.aiName}</p>
-          <p className="text-[#8696a0] text-xs">
-            {PERSONALITY_LABELS[user.personality ?? 'tsundere']}
+          <p className="text-[#8696a0] text-xs truncate">
+            {formatDaysTogether(user.createdAt) ?? PERSONALITY_LABELS[user.personality ?? 'tsundere']}
           </p>
         </div>
         <a

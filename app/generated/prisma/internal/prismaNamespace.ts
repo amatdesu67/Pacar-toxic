@@ -385,8 +385,6 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
-  Goal: 'Goal',
-  ProgressLog: 'ProgressLog',
   Message: 'Message',
   DailyMood: 'DailyMood'
 } as const
@@ -404,7 +402,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "goal" | "progressLog" | "message" | "dailyMood"
+    modelProps: "user" | "message" | "dailyMood"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -479,154 +477,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
-        }
-      }
-    }
-    Goal: {
-      payload: Prisma.$GoalPayload<ExtArgs>
-      fields: Prisma.GoalFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.GoalFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.GoalFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
-        }
-        findFirst: {
-          args: Prisma.GoalFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.GoalFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
-        }
-        findMany: {
-          args: Prisma.GoalFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>[]
-        }
-        create: {
-          args: Prisma.GoalCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
-        }
-        createMany: {
-          args: Prisma.GoalCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.GoalCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>[]
-        }
-        delete: {
-          args: Prisma.GoalDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
-        }
-        update: {
-          args: Prisma.GoalUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
-        }
-        deleteMany: {
-          args: Prisma.GoalDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.GoalUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.GoalUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>[]
-        }
-        upsert: {
-          args: Prisma.GoalUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoalPayload>
-        }
-        aggregate: {
-          args: Prisma.GoalAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateGoal>
-        }
-        groupBy: {
-          args: Prisma.GoalGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GoalGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.GoalCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GoalCountAggregateOutputType> | number
-        }
-      }
-    }
-    ProgressLog: {
-      payload: Prisma.$ProgressLogPayload<ExtArgs>
-      fields: Prisma.ProgressLogFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ProgressLogFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressLogPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ProgressLogFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressLogPayload>
-        }
-        findFirst: {
-          args: Prisma.ProgressLogFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressLogPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ProgressLogFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressLogPayload>
-        }
-        findMany: {
-          args: Prisma.ProgressLogFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressLogPayload>[]
-        }
-        create: {
-          args: Prisma.ProgressLogCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressLogPayload>
-        }
-        createMany: {
-          args: Prisma.ProgressLogCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ProgressLogCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressLogPayload>[]
-        }
-        delete: {
-          args: Prisma.ProgressLogDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressLogPayload>
-        }
-        update: {
-          args: Prisma.ProgressLogUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressLogPayload>
-        }
-        deleteMany: {
-          args: Prisma.ProgressLogDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ProgressLogUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ProgressLogUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressLogPayload>[]
-        }
-        upsert: {
-          args: Prisma.ProgressLogUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProgressLogPayload>
-        }
-        aggregate: {
-          args: Prisma.ProgressLogAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateProgressLog>
-        }
-        groupBy: {
-          args: Prisma.ProgressLogGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProgressLogGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ProgressLogCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ProgressLogCountAggregateOutputType> | number
         }
       }
     }
@@ -823,30 +673,12 @@ export const UserScalarFieldEnum = {
   personality: 'personality',
   mode: 'mode',
   aiPhotoUrl: 'aiPhotoUrl',
+  petNameUser: 'petNameUser',
+  petNameAi: 'petNameAi',
   createdAt: 'createdAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
-
-
-export const GoalScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  title: 'title',
-  createdAt: 'createdAt'
-} as const
-
-export type GoalScalarFieldEnum = (typeof GoalScalarFieldEnum)[keyof typeof GoalScalarFieldEnum]
-
-
-export const ProgressLogScalarFieldEnum = {
-  id: 'id',
-  goalId: 'goalId',
-  completedAt: 'completedAt',
-  source: 'source'
-} as const
-
-export type ProgressLogScalarFieldEnum = (typeof ProgressLogScalarFieldEnum)[keyof typeof ProgressLogScalarFieldEnum]
 
 
 export const MessageScalarFieldEnum = {
@@ -1031,8 +863,6 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
-  goal?: Prisma.GoalOmit
-  progressLog?: Prisma.ProgressLogOmit
   message?: Prisma.MessageOmit
   dailyMood?: Prisma.DailyMoodOmit
 }

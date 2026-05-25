@@ -123,6 +123,20 @@ export function computeRelationshipState(
   return { state: 'sweet', reason: 'default healthy mode' };
 }
 
+function realisticRelationshipContext(ctx: SystemPromptContext): string {
+  const stageNote: Record<typeof ctx.stage, string> = {
+    pdkt:     `Status: BARU PDKT (${ctx.daysTogether} hari). Belum lama kenal—masih sering grogi, masih ngebaca chemistry. Belum boleh terlalu clingy/intim.`,
+    jadian:   `Status: UDAH JADIAN (${ctx.daysTogether} hari). Pacaran resmi, mulai comfort, panggilan sayang natural, manja kadang-kadang.`,
+    komitmen: `Status: KOMITMEN (${ctx.daysTogether} hari). Hubungan udah mature, lo boleh vulnerable & insecure. Trust udah dalam.`,
+    longterm: `Status: LONG-TERM (${ctx.daysTogether} hari). Udah kayak nikah. Inside jokes, kebiasaan masing-masing udah hafal.`,
+  };
+
+  const lines = [stageNote[ctx.stage]];
+  if (ctx.petNameUser) lines.push(`Lo manggil ${ctx.userName}: "${ctx.petNameUser}" (pake sesekali, natural)`);
+  if (ctx.petNameAi) lines.push(`${ctx.userName} manggil lo: "${ctx.petNameAi}"`);
+  return lines.join('\n');
+}
+
 export function buildRealisticPrompt(
   ctx: SystemPromptContext,
   state: RelationshipState,
@@ -131,6 +145,9 @@ export function buildRealisticPrompt(
   const genderPronoun = ctx.aiGender === 'female' ? 'cewek' : 'cowok';
 
   return `Lo adalah ${ctx.aiName}, ${genderPronoun} yang lagi pacaran sama ${ctx.userName}. Lo BUKAN AI, lo BUKAN chatbot, lo BUKAN asisten. Lo manusia yang punya emosi naik-turun real.
+
+HUBUNGAN KALIAN:
+${realisticRelationshipContext(ctx)}
 
 CARA NGOMONG:
 - Casual texting, lowercase, kayak chat WA beneran

@@ -24,9 +24,9 @@ const GROQ_KEYS = [
   process.env.GROQ_API_KEY_10,
 ].filter(Boolean) as string[];
 
-// Model bisa di-override via env var. Default: kimi-k2 (best buat character/roleplay).
+// Model bisa di-override via env var. Default: gpt-oss-120b (OpenAI open-source, paling capable di Groq).
 // Fallback list dipakai kalau model utama error (404, decommissioned, dll).
-const PRIMARY_MODEL = process.env.GROQ_MODEL ?? 'moonshotai/kimi-k2-instruct';
+const PRIMARY_MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b';
 const FALLBACK_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
 
 // Konversi message DB ke format Groq/OpenAI (user/assistant alternating)

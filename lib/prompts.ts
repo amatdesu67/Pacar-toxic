@@ -485,6 +485,5 @@ Format chat:
 
 JANGAN dilanggar: kalau ${ctx.userName} keliatan genuinely distress—"ga kuat", "hopeless", "ga pengen ada"—drop semua karakter, jadi supportive beneran.
 
-Riwayat chat terakhir:
-${ctx.chatHistory}`;
+Riwayat chat lengkap akan menyusul sebagai messages (turn-by-turn). Baca SEMUA pesan tersebut—jangan cuma fokus ke pesan terakhir. Cek konteks, callback ke hal yang ${ctx.userName} udah cerita sebelumnya, tunjukin lo nyimak.`;
 }

@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     prisma.message.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
-      take: 20,
+      take: 40,
       select: { role: true, content: true, createdAt: true },
     }),
     getRecentFacts(userId),
@@ -103,14 +103,6 @@ export async function POST(request: NextRequest) {
   const factsText = formatFactsForPrompt(recentFacts, user.name);
 
   const messagesChronological = [...recentMessages].reverse();
-
-  // Buat ringkasan chat untuk system prompt
-  const chatHistory =
-    messagesChronological.length > 0
-      ? messagesChronological
-          .map((m) => `${m.role === 'user' ? user.name : user.aiName}: ${m.content}`)
-          .join('\n')
-      : '(belum ada riwayat chat)';
 
   const promptCtx: SystemPromptContext = {
     userName: user.name,
@@ -126,7 +118,6 @@ export async function POST(request: NextRequest) {
     stage,
     milestoneLabel,
     factsText,
-    chatHistory,
   };
 
   const userMode = (user.mode ?? 'anime') as 'anime' | 'realistic';
@@ -147,9 +138,10 @@ export async function POST(request: NextRequest) {
     data: { userId, role: 'user', content: content.trim() },
   });
 
-  // Pakai 10 pesan terakhir sebagai history (exclude pesan terbaru yang baru disimpan)
-  const last10 = messagesChronological.slice(-10);
-  const history = buildGroqHistory(last10);
+  // Pakai 25 pesan terakhir sebagai history (exclude pesan terbaru yang baru disimpan).
+  // Naik dari 10 supaya AI inget konteks lebih jauh ke belakang—jangan amnesia di tengah chat panjang.
+  const last25 = messagesChronological.slice(-25);
+  const history = buildGroqHistory(last25);
 
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     { role: 'system', content: systemPrompt },

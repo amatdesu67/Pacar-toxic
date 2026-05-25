@@ -23,8 +23,8 @@ const GROQ_KEYS = [
 
 // Model murah & cepat khusus buat extraction (limit 14,400/hari)
 const EXTRACTION_MODEL = 'llama-3.1-8b-instant';
-const MAX_FACTS_PER_USER = 100;
-const MAX_FACTS_INJECTED = 12;
+const MAX_FACTS_PER_USER = 150;
+const MAX_FACTS_INJECTED = 20;
 
 interface ExtractedFact {
   category: FactCategory;
@@ -218,8 +218,10 @@ Output JSON:`;
 
 /**
  * Cek apakah saat ini perlu trigger extraction. Heuristic sederhana:
- * setiap 4 pesan AI, jalanin extraction.
+ * setiap 2 pesan AI, jalanin extraction.
+ * (Sebelumnya 4—dinaikin biar fakta lebih cepet ke-capture, terutama pas
+ * user cerita banyak hal di chat berurutan.)
  */
 export function shouldExtract(totalAiMessages: number): boolean {
-  return totalAiMessages > 0 && totalAiMessages % 4 === 0;
+  return totalAiMessages > 0 && totalAiMessages % 2 === 0;
 }

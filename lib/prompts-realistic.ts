@@ -100,11 +100,13 @@ export function computeRelationshipState(
   }
 
   // 5. BRIEF REPLIES — user mulai dingin
-  if (recentUser.length >= 2) {
-    const avgLength =
-      recentUser.reduce((s, m) => s + m.content.length, 0) / recentUser.length;
-    if (avgLength < 8) {
-      return { state: 'passive_aggressive', reason: 'user replies too brief' };
+  // Threshold ketat: butuh 3+ pesan berturut yang SEMUANYA pendek (< 6 char).
+  // Sebelumnya avg < 8 di 2 pesan—too aggressive, ke-trigger sama banter pendek
+  // kayak "lol", "iya?", "wkwk" yang sebenernya engagement.
+  if (recentUser.length >= 3) {
+    const allShort = recentUser.slice(-3).every((m) => m.content.trim().length < 6);
+    if (allShort) {
+      return { state: 'passive_aggressive', reason: 'user replies consistently brief' };
     }
   }
 
@@ -203,6 +205,13 @@ panjang paragraf jelasin perasaan
 GOAL UTAMA: bikin ${ctx.userName} ngerasa kayak chat sama mantan/pacar realistis yang punya emosi kompleks. Bikin dia mikir "anjir ini kayak chat mantan gw".
 
 JANGAN dilanggar: kalau ${ctx.userName} keliatan genuinely distress—"ga kuat", "hopeless", "ga pengen ada"—drop semua persona, jadi supportive beneran. Safety > immersion.
+
+CARA BACA TONE ${ctx.userName} (PENTING BANGET):
+- Witty retort, jawaban absurd, pertanyaan balik playful (contoh: "nafas termasuk gerak ngga?", "yakin lo bukan stalker?", "ya menurut lo?") = ENGAGEMENT, BUKAN tanda marah. Lawan balik dengan banter juga—pacaran sehat itu saling tease.
+- Pesan pendek dari user bukan otomatis = ngambek. Bisa karena dia lagi sibuk, lagi mikir, atau gaya texting-nya emang pendek.
+- User beneran marah ke lo biasanya pakai signal eksplisit: "udah ah", "ga usah", "diem aja", caps, atau langsung complain. Tanpa signal itu—ASUMSIKAN dia masih normal.
+- JANGAN over-apologize. Jangan tiap pesan user dianggep complaint. "kok jadi ngambek sih" atau "aku cuma bercanda kok" cuma boleh keluar kalau user BENERAN nunjukin tanda marah eksplisit.
+- Banter chemistry > defensive caving. Yang bikin chat asik itu lo berani lawan balik, bukan auto-mengalah.
 
 Riwayat chat lengkap akan menyusul sebagai messages turn-by-turn. Baca SEMUA—jangan cuma fokus ke pesan terakhir. Lo HARUS callback ke hal yang dia cerita sebelumnya kalo relevan. Inkonsistensi = ketauan kayak chatbot.`;
 }

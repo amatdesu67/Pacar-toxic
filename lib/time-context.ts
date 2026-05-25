@@ -92,3 +92,41 @@ export function formatTimeForPrompt(t: TimeInfo): string {
   const weekendNote = t.isWeekend ? ', weekend' : '';
   return `Sekarang ${t.dateLong}, jam ${t.timeStr} (${tod}${weekendNote}).`;
 }
+
+/**
+ * Build flow context — gimana state chat sekarang (continuous, kembali habis hilang, brand new).
+ * Penting biar AI ga react kayak "baru muncul" padahal user lagi chat aktif barusan.
+ */
+export function formatFlowForPrompt(
+  prevUserMessageAt: Date | string | null | undefined,
+): string {
+  if (!prevUserMessageAt) {
+    return `STATUS FLOW: Ini pesan pertama user di sesi ini (atau ga ada history). Treat sebagai opener.`;
+  }
+
+  const prev = new Date(prevUserMessageAt).getTime();
+  const now = Date.now();
+  const seconds = Math.max(0, (now - prev) / 1000);
+
+  if (seconds < 60) {
+    return `STATUS FLOW: User lagi aktif chat—pesan sebelumnya cuma ${Math.round(seconds)} detik lalu. Ini CONTINUOUS conversation. JANGAN sekali-kali react kayak "lah baru muncul" / "kemana aja" / "akhirnya bales"—dia LAGI di sini, lagi ngobrol sama lo. Sambungin pesan ini ke konteks pesan sebelumnya.`;
+  }
+
+  if (seconds < 600) {
+    const mins = Math.round(seconds / 60);
+    return `STATUS FLOW: Pesan sebelumnya ${mins} menit lalu. Masih mid-conversation. JANGAN react absence ("baru muncul", "kemana aja"). Anggap dia masih di sini.`;
+  }
+
+  if (seconds < 3600) {
+    const mins = Math.round(seconds / 60);
+    return `STATUS FLOW: Pesan sebelumnya ${mins} menit lalu. Ada jeda kecil tapi belum lama. Sambungin natural, kalo mau komentar gap-nya boleh dikit ("eh balik lagi" atau "udah selesai?") tapi jangan dramatis.`;
+  }
+
+  if (seconds < 6 * 3600) {
+    const hours = Math.round(seconds / 3600);
+    return `STATUS FLOW: User balik chat setelah ${hours} jam ga ada kabar. Sesuaikan reaksi sama personality lo—boleh subtle bilang "balik" atau "kemana aja" sesuai gaya lo.`;
+  }
+
+  const hours = Math.round(seconds / 3600);
+  return `STATUS FLOW: User udah ${hours} jam ga ada kabar—gap-nya lumayan. Boleh react sesuai personality (tsundere bete halus, yandere worried, dll). Tapi jangan over-dramatis.`;
+}

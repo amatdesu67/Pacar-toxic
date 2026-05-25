@@ -27,4 +27,5 @@ export interface SystemPromptContext {
   factsText: string;           // formatted facts yang AI udah tau tentang user
   summaryText: string;         // ringkasan chat lama (di luar 50 pesan terakhir)
   timeText: string;            // konteks waktu sekarang (jam, hari, tanggal)
+  flowText: string;            // status flow chat (baru gabung, mid-conv, balik dari hilang, dll)
 }

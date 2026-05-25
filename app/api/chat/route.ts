@@ -7,7 +7,7 @@ import { getOrCreateDailyMood } from '@/lib/mood';
 import { guardRequest } from '@/lib/security';
 import { calculateDaysTogether, getMilestoneLabel } from '@/lib/db-helpers';
 import { getRelationshipStage, type SystemPromptContext } from '@/lib/types';
-import { buildTimeContext, formatTimeForPrompt } from '@/lib/time-context';
+import { buildTimeContext, formatTimeForPrompt, formatFlowForPrompt } from '@/lib/time-context';
 import {
   getRecentFacts,
   formatFactsForPrompt,
@@ -102,6 +102,8 @@ export async function POST(request: NextRequest) {
     getRecentFacts(userId),
   ]);
 
+  const messagesChronological = [...recentMessages].reverse();
+
   const daysTogether = calculateDaysTogether(user.createdAt);
   const stage = getRelationshipStage(daysTogether);
   const milestoneLabel = getMilestoneLabel(daysTogether);
@@ -110,7 +112,10 @@ export async function POST(request: NextRequest) {
   const summaryText = formatSummaryForPrompt(user.conversationSummary, user.name);
   const timeText = formatTimeForPrompt(buildTimeContext(timezone));
 
-  const messagesChronological = [...recentMessages].reverse();
+  // Cari pesan user terbaru SEBELUM yang sekarang—buat ngitung gap waktu.
+  // messagesChronological belum termasuk pesan user yang barusan masuk.
+  const lastUserMsg = [...messagesChronological].reverse().find((m) => m.role === 'user');
+  const flowText = formatFlowForPrompt(lastUserMsg?.createdAt ?? null);
 
   const promptCtx: SystemPromptContext = {
     userName: user.name,
@@ -128,6 +133,7 @@ export async function POST(request: NextRequest) {
     factsText,
     summaryText,
     timeText,
+    flowText,
   };
 
   const userMode = (user.mode ?? 'anime') as 'anime' | 'realistic';

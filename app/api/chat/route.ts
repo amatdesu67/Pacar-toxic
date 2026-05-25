@@ -112,10 +112,15 @@ export async function POST(request: NextRequest) {
   const summaryText = formatSummaryForPrompt(user.conversationSummary, user.name);
   const timeText = formatTimeForPrompt(buildTimeContext(timezone));
 
-  // Cari pesan user terbaru SEBELUM yang sekarang—buat ngitung gap waktu.
-  // messagesChronological belum termasuk pesan user yang barusan masuk.
-  const lastUserMsg = [...messagesChronological].reverse().find((m) => m.role === 'user');
-  const flowText = formatFlowForPrompt(lastUserMsg?.createdAt ?? null);
+  // Cari pesan user & AI terbaru SEBELUM yang sekarang—buat ngitung gap waktu & deteksi
+  // case "user lagi bales welcome AI" (user msg ga ada, AI msg ada).
+  const reversed = [...messagesChronological].reverse();
+  const lastUserMsg = reversed.find((m) => m.role === 'user');
+  const lastAiMsg = reversed.find((m) => m.role === 'ai');
+  const flowText = formatFlowForPrompt({
+    lastUserMessageAt: lastUserMsg?.createdAt ?? null,
+    lastAiMessageAt: lastAiMsg?.createdAt ?? null,
+  });
 
   const promptCtx: SystemPromptContext = {
     userName: user.name,

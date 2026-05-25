@@ -96,17 +96,36 @@ export function formatTimeForPrompt(t: TimeInfo): string {
 /**
  * Build flow context — gimana state chat sekarang (continuous, kembali habis hilang, brand new).
  * Penting biar AI ga react kayak "baru muncul" padahal user lagi chat aktif barusan.
+ *
+ * Logic:
+ * - Kalau lastUser ada: hitung gap dari sana (gap user-to-user)
+ * - Kalau lastUser ga ada TAPI lastAi recent: ini user lagi bales opener AI. Continuous.
+ * - Kalau dua-duanya ga ada: brand new, opener
  */
-export function formatFlowForPrompt(
-  prevUserMessageAt: Date | string | null | undefined,
-): string {
-  if (!prevUserMessageAt) {
-    return `STATUS FLOW: Ini pesan pertama user di sesi ini (atau ga ada history). Treat sebagai opener.`;
+export function formatFlowForPrompt(opts: {
+  lastUserMessageAt?: Date | string | null;
+  lastAiMessageAt?: Date | string | null;
+}): string {
+  const { lastUserMessageAt, lastAiMessageAt } = opts;
+
+  // Case A: belum ada history sama sekali
+  if (!lastUserMessageAt && !lastAiMessageAt) {
+    return `STATUS FLOW: Brand new chat, belum ada history sama sekali. Treat sebagai opener.`;
   }
 
-  const prev = new Date(prevUserMessageAt).getTime();
-  const now = Date.now();
-  const seconds = Math.max(0, (now - prev) / 1000);
+  // Case B: AI udah ngomong (welcome/proactive) tapi user belum bales sama sekali → ini reply pertama user
+  if (!lastUserMessageAt && lastAiMessageAt) {
+    const ai = new Date(lastAiMessageAt).getTime();
+    const secondsSinceAi = Math.max(0, (Date.now() - ai) / 1000);
+    if (secondsSinceAi < 6 * 3600) {
+      return `STATUS FLOW: User lagi bales pesan opener/sapaan pertama lo (lo barusan kirim pesan ke dia ${Math.round(secondsSinceAi / 60)} menit lalu, sekarang dia jawab). Ini CONTINUOUS. JANGAN react "kamu baru muncul" / "lah kemana aja"—justru lo yang nyapa duluan barusan, dia tinggal bales aja. Sambungin natural ke topik yang LO mulai tadi.`;
+    }
+    return `STATUS FLOW: User akhirnya bales pesan lo dari ${Math.round(secondsSinceAi / 3600)} jam lalu. Boleh komentar gap-nya sesuai personality, tapi sambungin ke topik yang lo mulai sebelumnya.`;
+  }
+
+  // Case C: ada user message sebelumnya—hitung gap user-to-user
+  const prev = new Date(lastUserMessageAt!).getTime();
+  const seconds = Math.max(0, (Date.now() - prev) / 1000);
 
   if (seconds < 60) {
     return `STATUS FLOW: User lagi aktif chat—pesan sebelumnya cuma ${Math.round(seconds)} detik lalu. Ini CONTINUOUS conversation. JANGAN sekali-kali react kayak "lah baru muncul" / "kemana aja" / "akhirnya bales"—dia LAGI di sini, lagi ngobrol sama lo. Sambungin pesan ini ke konteks pesan sebelumnya.`;

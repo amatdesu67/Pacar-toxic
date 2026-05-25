@@ -205,11 +205,6 @@ export default function ChatPage() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('userId');
-    router.replace('/setup');
-  };
-
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
@@ -254,8 +249,8 @@ export default function ChatPage() {
         onChange={handlePhotoChange}
       />
 
-      {/* Header */}
-      <div className="bg-[#202c33] px-4 py-3 flex items-center gap-3 sticky top-0 z-10 shadow-md">
+      {/* Header (flat) */}
+      <div className="bg-[#202c33] px-4 py-3 flex items-center gap-3 sticky top-0 z-10 border-b border-[#2a3942]">
         <button
           onClick={() => fileInputRef.current?.click()}
           className="w-10 h-10 rounded-full bg-[#2a3942] flex items-center justify-center text-xl flex-shrink-0 overflow-hidden relative group"
@@ -314,22 +309,22 @@ export default function ChatPage() {
             <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.127 1.706l-.909 3.714c-.361 1.476.667 2.859 2.197 2.859a.75.75 0 000-1.5.648.648 0 01-.633-.334.648.648 0 01.096-.67l.909-3.714c.61-2.492-1.972-4.572-4.307-3.438a.75.75 0 00.52 1.402zm1.544-5.308a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z" clipRule="evenodd" />
           </svg>
         </a>
-        <button
-          onClick={handleLogout}
+        <a
+          href="/settings"
           className="text-[#8696a0] hover:text-[#e9edef] transition-colors p-1"
-          title="Reset & setup ulang"
+          title="Settings"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
             <path fillRule="evenodd" d="M11.828 2.25c-.916 0-1.699.663-1.85 1.567l-.091.549a.798.798 0 01-.517.608 7.45 7.45 0 00-.478.198.798.798 0 01-.796-.064l-.453-.324a1.875 1.875 0 00-2.416.2l-.243.243a1.875 1.875 0 00-.2 2.416l.324.453a.798.798 0 01.064.796 7.448 7.448 0 00-.198.478.798.798 0 01-.608.517l-.549.091A1.875 1.875 0 002.25 11.828v.344c0 .916.663 1.699 1.567 1.85l.549.091c.281.047.508.25.608.517.06.162.127.321.198.478a.798.798 0 01-.064.796l-.324.453a1.875 1.875 0 00.2 2.416l.243.243c.648.648 1.67.733 2.416.2l.453-.324a.798.798 0 01.796-.064c.157.071.316.138.478.198.267.1.47.327.517.608l.091.549c.15.904.933 1.567 1.85 1.567h.344c.916 0 1.699-.663 1.85-1.567l.091-.549a.798.798 0 01.517-.608 7.52 7.52 0 00.478-.198.798.798 0 01.796.064l.453.324a1.875 1.875 0 002.416-.2l.243-.243c.648-.648.733-1.67.2-2.416l-.324-.453a.798.798 0 01-.064-.796c.071-.157.138-.316.198-.478.1-.267.327-.47.608-.517l.549-.091A1.875 1.875 0 0021.75 12.172v-.344c0-.916-.663-1.699-1.567-1.85l-.549-.091a.798.798 0 01-.608-.517 7.507 7.507 0 00-.198-.478.798.798 0 01.064-.796l.324-.453a1.875 1.875 0 00-.2-2.416l-.243-.243a1.875 1.875 0 00-2.416-.2l-.453.324a.798.798 0 01-.796.064 7.462 7.462 0 00-.478-.198.798.798 0 01-.517-.608l-.091-.549c-.15-.904-.933-1.567-1.85-1.567h-.344zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clipRule="evenodd" />
           </svg>
-        </button>
+        </a>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-3 pt-4 pb-2">
-        {/* Milestone banner */}
+        {/* Milestone banner (flat) */}
         {getMilestone(user.createdAt) && (
-          <div className="mb-3 mx-auto max-w-xs bg-gradient-to-r from-[#00a884]/20 to-[#06cf9c]/20 border border-[#00a884]/40 rounded-2xl px-4 py-3 text-center">
+          <div className="mb-3 mx-auto max-w-xs bg-[#00a884]/15 border border-[#00a884]/30 rounded-2xl px-4 py-3 text-center">
             <p className="text-2xl mb-1">🎉</p>
             <p className="text-[#e9edef] text-sm font-semibold">
               Hari ini {getMilestone(user.createdAt)} kalian bareng!
@@ -368,8 +363,8 @@ export default function ChatPage() {
         <div ref={messagesEndRef} className="h-2" />
       </div>
 
-      {/* Input */}
-      <div className="bg-[#202c33] px-3 py-3 flex gap-2 items-end sticky bottom-0">
+      {/* Input (flat with top border) */}
+      <div className="bg-[#202c33] px-3 py-3 flex gap-2 items-end sticky bottom-0 border-t border-[#2a3942]">
         <textarea
           ref={textareaRef}
           value={input}

@@ -44,7 +44,7 @@ export function ChatBubble({ message, aiGender, aiPhotoUrl }: ChatBubbleProps) {
       )}
 
       <div
-        className={`max-w-[75%] px-3 py-2 rounded-2xl shadow-sm ${
+        className={`max-w-[75%] px-3 py-2 rounded-2xl ${
           isUser
             ? 'bg-[#005c4b] rounded-br-sm'
             : 'bg-[#202c33] rounded-bl-sm'

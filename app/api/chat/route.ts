@@ -25,9 +25,13 @@ const GROQ_KEYS = [
 ].filter(Boolean) as string[];
 
 // Model bisa di-override via env var. Default: gpt-oss-120b (OpenAI open-source, paling capable di Groq).
-// Fallback list dipakai kalau model utama error (404, decommissioned, dll).
+// Fallback chain (urut): kalau primary 404 → coba berikutnya, dst.
 const PRIMARY_MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b';
-const FALLBACK_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+const FALLBACK_MODELS = [
+  'meta-llama/llama-4-scout-17b-16e-instruct', // newer gen Llama
+  'llama-3.3-70b-versatile',                   // proven mid-tier
+  'llama-3.1-8b-instant',                      // last resort, limit longgar
+];
 
 // Konversi message DB ke format Groq/OpenAI (user/assistant alternating)
 function buildGroqHistory(

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { MadeByFooter } from '@/components/MadeByFooter';
 
 type GenderType = 'female' | 'male';
 type PersonalityType = 'tsundere' | 'yandere' | 'kuudere' | 'deredere' | 'himedere';
@@ -342,6 +343,8 @@ export default function SetupPage() {
             {isLoading ? 'Memproses...' : 'Mulai Pacaran 💕'}
           </button>
         </form>
+
+        <MadeByFooter />
       </div>
     </div>
   );

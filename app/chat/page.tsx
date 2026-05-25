@@ -93,14 +93,44 @@ export default function ChatPage() {
       fetch(`/api/user?userId=${userId}`).then((r) => r.json()),
       fetch(`/api/messages?userId=${userId}&limit=50`).then((r) => r.json()),
     ])
-      .then(([userData, messagesData]) => {
+      .then(async ([userData, messagesData]) => {
         if (userData.error) {
           localStorage.removeItem('userId');
           router.replace('/setup');
           return;
         }
         setUser(userData.user);
-        setMessages(messagesData.messages ?? []);
+        const msgs: Message[] = messagesData.messages ?? [];
+        setMessages(msgs);
+
+        // Cek apakah perlu fetch returning greeting (gap > 6 jam, last msg dari AI)
+        const lastMsg = msgs[msgs.length - 1];
+        if (lastMsg && lastMsg.role === 'ai') {
+          const hoursAway = (Date.now() - new Date(lastMsg.createdAt).getTime()) / 3600000;
+          if (hoursAway >= 6) {
+            try {
+              const res = await fetch('/api/chat/proactive', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId }),
+              });
+              const data = await res.json();
+              if (data.message) {
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    id: data.messageId ?? `proactive-${Date.now()}`,
+                    role: 'ai',
+                    content: data.message,
+                    createdAt: data.createdAt ?? new Date().toISOString(),
+                  },
+                ]);
+              }
+            } catch {
+              // silent fail
+            }
+          }
+        }
       })
       .finally(() => setIsInitializing(false));
   }, [router]);

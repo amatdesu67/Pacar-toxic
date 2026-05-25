@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { guardRequest } from '@/lib/security';
+import { generateWelcomeMessage } from '@/lib/proactive';
+import type { PersonalityType, GenderType } from '@/lib/types';
 
 export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get('userId');
@@ -56,6 +58,26 @@ export async function POST(request: NextRequest) {
       petNameAi: petNameAi?.trim() || null,
     },
   });
+
+  // Generate welcome message dari AI (best-effort, jangan blokir signup kalo gagal)
+  try {
+    const welcome = await generateWelcomeMessage({
+      aiName: user.aiName,
+      userName: user.name,
+      aiGender: user.aiGender as GenderType,
+      personality: user.personality as PersonalityType,
+      petNameUser: user.petNameUser,
+      petNameAi: user.petNameAi,
+      mode: user.mode as 'anime' | 'realistic',
+    });
+    if (welcome) {
+      await prisma.message.create({
+        data: { userId: user.id, role: 'ai', content: welcome },
+      });
+    }
+  } catch {
+    // Silent fail — user tetap dibuat, chat tetap bisa dimulai tanpa welcome
+  }
 
   return NextResponse.json({ userId: user.id });
 }

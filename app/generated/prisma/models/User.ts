@@ -266,6 +266,7 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   messages?: Prisma.MessageListRelationFilter
   dailyMoods?: Prisma.DailyMoodListRelationFilter
+  facts?: Prisma.UserFactListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -282,6 +283,7 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   messages?: Prisma.MessageOrderByRelationAggregateInput
   dailyMoods?: Prisma.DailyMoodOrderByRelationAggregateInput
+  facts?: Prisma.UserFactOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -301,6 +303,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   messages?: Prisma.MessageListRelationFilter
   dailyMoods?: Prisma.DailyMoodListRelationFilter
+  facts?: Prisma.UserFactListRelationFilter
 }, "id">
 
 export type UserOrderByWithAggregationInput = {
@@ -353,6 +356,7 @@ export type UserCreateInput = {
   createdAt?: Date | string
   messages?: Prisma.MessageCreateNestedManyWithoutUserInput
   dailyMoods?: Prisma.DailyMoodCreateNestedManyWithoutUserInput
+  facts?: Prisma.UserFactCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -369,6 +373,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
   dailyMoods?: Prisma.DailyMoodUncheckedCreateNestedManyWithoutUserInput
+  facts?: Prisma.UserFactUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -385,6 +390,7 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
   dailyMoods?: Prisma.DailyMoodUpdateManyWithoutUserNestedInput
+  facts?: Prisma.UserFactUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -401,6 +407,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
   dailyMoods?: Prisma.DailyMoodUncheckedUpdateManyWithoutUserNestedInput
+  facts?: Prisma.UserFactUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -520,6 +527,20 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type UserCreateNestedOneWithoutFactsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutFactsInput, Prisma.UserUncheckedCreateWithoutFactsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutFactsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutFactsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutFactsInput, Prisma.UserUncheckedCreateWithoutFactsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutFactsInput
+  upsert?: Prisma.UserUpsertWithoutFactsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutFactsInput, Prisma.UserUpdateWithoutFactsInput>, Prisma.UserUncheckedUpdateWithoutFactsInput>
+}
+
 export type UserCreateNestedOneWithoutMessagesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutMessagesInput, Prisma.UserUncheckedCreateWithoutMessagesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutMessagesInput
@@ -548,6 +569,86 @@ export type UserUpdateOneRequiredWithoutDailyMoodsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDailyMoodsInput, Prisma.UserUpdateWithoutDailyMoodsInput>, Prisma.UserUncheckedUpdateWithoutDailyMoodsInput>
 }
 
+export type UserCreateWithoutFactsInput = {
+  id?: string
+  name: string
+  aiName: string
+  aiGender: string
+  toxicLevel: number
+  personality?: string
+  mode?: string
+  aiPhotoUrl?: string | null
+  petNameUser?: string | null
+  petNameAi?: string | null
+  createdAt?: Date | string
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
+  dailyMoods?: Prisma.DailyMoodCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutFactsInput = {
+  id?: string
+  name: string
+  aiName: string
+  aiGender: string
+  toxicLevel: number
+  personality?: string
+  mode?: string
+  aiPhotoUrl?: string | null
+  petNameUser?: string | null
+  petNameAi?: string | null
+  createdAt?: Date | string
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
+  dailyMoods?: Prisma.DailyMoodUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutFactsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutFactsInput, Prisma.UserUncheckedCreateWithoutFactsInput>
+}
+
+export type UserUpsertWithoutFactsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutFactsInput, Prisma.UserUncheckedUpdateWithoutFactsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutFactsInput, Prisma.UserUncheckedCreateWithoutFactsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutFactsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutFactsInput, Prisma.UserUncheckedUpdateWithoutFactsInput>
+}
+
+export type UserUpdateWithoutFactsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  aiName?: Prisma.StringFieldUpdateOperationsInput | string
+  aiGender?: Prisma.StringFieldUpdateOperationsInput | string
+  toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiPhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  petNameUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  petNameAi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
+  dailyMoods?: Prisma.DailyMoodUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutFactsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  aiName?: Prisma.StringFieldUpdateOperationsInput | string
+  aiGender?: Prisma.StringFieldUpdateOperationsInput | string
+  toxicLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  personality?: Prisma.StringFieldUpdateOperationsInput | string
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
+  aiPhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  petNameUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  petNameAi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
+  dailyMoods?: Prisma.DailyMoodUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutMessagesInput = {
   id?: string
   name: string
@@ -561,6 +662,7 @@ export type UserCreateWithoutMessagesInput = {
   petNameAi?: string | null
   createdAt?: Date | string
   dailyMoods?: Prisma.DailyMoodCreateNestedManyWithoutUserInput
+  facts?: Prisma.UserFactCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMessagesInput = {
@@ -576,6 +678,7 @@ export type UserUncheckedCreateWithoutMessagesInput = {
   petNameAi?: string | null
   createdAt?: Date | string
   dailyMoods?: Prisma.DailyMoodUncheckedCreateNestedManyWithoutUserInput
+  facts?: Prisma.UserFactUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMessagesInput = {
@@ -607,6 +710,7 @@ export type UserUpdateWithoutMessagesInput = {
   petNameAi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dailyMoods?: Prisma.DailyMoodUpdateManyWithoutUserNestedInput
+  facts?: Prisma.UserFactUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMessagesInput = {
@@ -622,6 +726,7 @@ export type UserUncheckedUpdateWithoutMessagesInput = {
   petNameAi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   dailyMoods?: Prisma.DailyMoodUncheckedUpdateManyWithoutUserNestedInput
+  facts?: Prisma.UserFactUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDailyMoodsInput = {
@@ -637,6 +742,7 @@ export type UserCreateWithoutDailyMoodsInput = {
   petNameAi?: string | null
   createdAt?: Date | string
   messages?: Prisma.MessageCreateNestedManyWithoutUserInput
+  facts?: Prisma.UserFactCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDailyMoodsInput = {
@@ -652,6 +758,7 @@ export type UserUncheckedCreateWithoutDailyMoodsInput = {
   petNameAi?: string | null
   createdAt?: Date | string
   messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
+  facts?: Prisma.UserFactUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDailyMoodsInput = {
@@ -683,6 +790,7 @@ export type UserUpdateWithoutDailyMoodsInput = {
   petNameAi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
+  facts?: Prisma.UserFactUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDailyMoodsInput = {
@@ -698,6 +806,7 @@ export type UserUncheckedUpdateWithoutDailyMoodsInput = {
   petNameAi?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
+  facts?: Prisma.UserFactUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -708,11 +817,13 @@ export type UserUncheckedUpdateWithoutDailyMoodsInput = {
 export type UserCountOutputType = {
   messages: number
   dailyMoods: number
+  facts: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   messages?: boolean | UserCountOutputTypeCountMessagesArgs
   dailyMoods?: boolean | UserCountOutputTypeCountDailyMoodsArgs
+  facts?: boolean | UserCountOutputTypeCountFactsArgs
 }
 
 /**
@@ -739,6 +850,13 @@ export type UserCountOutputTypeCountDailyMoodsArgs<ExtArgs extends runtime.Types
   where?: Prisma.DailyMoodWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountFactsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserFactWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -754,6 +872,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
   dailyMoods?: boolean | Prisma.User$dailyMoodsArgs<ExtArgs>
+  facts?: boolean | Prisma.User$factsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -803,6 +922,7 @@ export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = run
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
   dailyMoods?: boolean | Prisma.User$dailyMoodsArgs<ExtArgs>
+  facts?: boolean | Prisma.User$factsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -813,6 +933,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     messages: Prisma.$MessagePayload<ExtArgs>[]
     dailyMoods: Prisma.$DailyMoodPayload<ExtArgs>[]
+    facts: Prisma.$UserFactPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1222,6 +1343,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   messages<T extends Prisma.User$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   dailyMoods<T extends Prisma.User$dailyMoodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$dailyMoodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DailyMoodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  facts<T extends Prisma.User$factsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$factsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserFactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1698,6 +1820,30 @@ export type User$dailyMoodsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.DailyMoodScalarFieldEnum | Prisma.DailyMoodScalarFieldEnum[]
+}
+
+/**
+ * User.facts
+ */
+export type User$factsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserFact
+   */
+  select?: Prisma.UserFactSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserFact
+   */
+  omit?: Prisma.UserFactOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserFactInclude<ExtArgs> | null
+  where?: Prisma.UserFactWhereInput
+  orderBy?: Prisma.UserFactOrderByWithRelationInput | Prisma.UserFactOrderByWithRelationInput[]
+  cursor?: Prisma.UserFactWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserFactScalarFieldEnum | Prisma.UserFactScalarFieldEnum[]
 }
 
 /**

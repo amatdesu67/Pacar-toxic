@@ -385,6 +385,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
+  UserFact: 'UserFact',
   Message: 'Message',
   DailyMood: 'DailyMood'
 } as const
@@ -402,7 +403,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "message" | "dailyMood"
+    modelProps: "user" | "userFact" | "message" | "dailyMood"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -477,6 +478,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserFact: {
+      payload: Prisma.$UserFactPayload<ExtArgs>
+      fields: Prisma.UserFactFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserFactFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserFactPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserFactFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserFactPayload>
+        }
+        findFirst: {
+          args: Prisma.UserFactFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserFactPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserFactFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserFactPayload>
+        }
+        findMany: {
+          args: Prisma.UserFactFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserFactPayload>[]
+        }
+        create: {
+          args: Prisma.UserFactCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserFactPayload>
+        }
+        createMany: {
+          args: Prisma.UserFactCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserFactCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserFactPayload>[]
+        }
+        delete: {
+          args: Prisma.UserFactDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserFactPayload>
+        }
+        update: {
+          args: Prisma.UserFactUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserFactPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserFactDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserFactUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserFactUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserFactPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserFactUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserFactPayload>
+        }
+        aggregate: {
+          args: Prisma.UserFactAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserFact>
+        }
+        groupBy: {
+          args: Prisma.UserFactGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserFactGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserFactCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserFactCountAggregateOutputType> | number
         }
       }
     }
@@ -681,6 +756,18 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const UserFactScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  category: 'category',
+  content: 'content',
+  source: 'source',
+  createdAt: 'createdAt'
+} as const
+
+export type UserFactScalarFieldEnum = (typeof UserFactScalarFieldEnum)[keyof typeof UserFactScalarFieldEnum]
+
+
 export const MessageScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -863,6 +950,7 @@ export type PrismaClientOptions = ({
 }
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
+  userFact?: Prisma.UserFactOmit
   message?: Prisma.MessageOmit
   dailyMood?: Prisma.DailyMoodOmit
 }

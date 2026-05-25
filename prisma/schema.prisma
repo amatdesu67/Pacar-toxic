@@ -21,8 +21,22 @@ model User {
   createdAt    DateTime    @default(now()) @map("created_at")
   messages     Message[]
   dailyMoods   DailyMood[]
+  facts        UserFact[]
 
   @@map("users")
+}
+
+model UserFact {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  category  String   // "hobi" | "makanan" | "kerjaan" | "temen" | "keluarga" | "insecurity" | "kebiasaan" | "lainnya"
+  content   String   // contoh: "suka kopi tanpa gula"
+  source    String   @default("extracted") // "extracted" | "manual"
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_facts")
 }
 
 model Message {

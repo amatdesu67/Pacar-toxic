@@ -7,6 +7,12 @@ import { getOrCreateDailyMood } from '@/lib/mood';
 import { guardRequest } from '@/lib/security';
 import { calculateDaysTogether } from '@/lib/db-helpers';
 import { getRelationshipStage, type SystemPromptContext } from '@/lib/types';
+import {
+  getRecentFacts,
+  formatFactsForPrompt,
+  extractAndSaveFacts,
+  shouldExtract,
+} from '@/lib/memory';
 
 const GROQ_KEYS = [
   process.env.GROQ_API_KEY,
@@ -80,16 +86,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const recentMessages = await prisma.message.findMany({
-    where: { userId },
-    orderBy: { createdAt: 'desc' },
-    take: 20,
-    select: { role: true, content: true, createdAt: true },
-  });
+  const [recentMessages, recentFacts] = await Promise.all([
+    prisma.message.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+      select: { role: true, content: true, createdAt: true },
+    }),
+    getRecentFacts(userId),
+  ]);
 
   const daysTogether = calculateDaysTogether(user.createdAt);
   const stage = getRelationshipStage(daysTogether);
   const { mood, reason } = await getOrCreateDailyMood(userId, stage);
+  const factsText = formatFactsForPrompt(recentFacts, user.name);
 
   const messagesChronological = [...recentMessages].reverse();
 
@@ -113,6 +123,7 @@ export async function POST(request: NextRequest) {
     petNameAi: user.petNameAi,
     daysTogether,
     stage,
+    factsText,
     chatHistory,
   };
 
@@ -189,6 +200,22 @@ export async function POST(request: NextRequest) {
   const savedAiMsg = await prisma.message.create({
     data: { userId, role: 'ai', content: aiText },
   });
+
+  // Trigger fact extraction async (fire-and-forget). Setiap 4 pesan AI.
+  const aiMessageCount = messagesChronological.filter((m) => m.role === 'ai').length + 1;
+  if (shouldExtract(aiMessageCount)) {
+    // Bangun chat untuk extraction termasuk pesan user terakhir + balasan AI baru
+    const extractionMessages = [
+      ...messagesChronological.map((m) => ({
+        role: m.role === 'user' ? ('user' as const) : ('ai' as const),
+        content: m.content,
+      })),
+      { role: 'user' as const, content: content.trim() },
+      { role: 'ai' as const, content: aiText },
+    ];
+    // Fire-and-forget: jangan await, biar response ke user ga ke-block
+    void extractAndSaveFacts(userId, extractionMessages, user.name, user.aiName).catch(() => {});
+  }
 
   return NextResponse.json({ message: aiText, messageId: savedAiMsg.id });
 }

@@ -42,6 +42,43 @@ const FALLBACK_MODELS = [
   'llama-3.1-8b-instant',                       // last resort, limit longgar, shallow
 ];
 
+// OpenRouter — alternative provider. Kalau OPENROUTER_API_KEY di-set, dicoba dulu sebelum Groq.
+// Default model: deepseek/deepseek-chat:free (gratis, kualitas top buat character work).
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL ?? 'deepseek/deepseek-chat:free';
+const APP_URL = process.env.APP_URL ?? 'https://pacar-toxic.vercel.app';
+
+async function callOpenRouter(
+  messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+): Promise<string | null> {
+  if (!OPENROUTER_API_KEY) return null;
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        // OpenRouter butuh ini buat free tier identification + analytics
+        'HTTP-Referer': APP_URL,
+        'X-Title': 'Pacar AI',
+      },
+      body: JSON.stringify({
+        model: OPENROUTER_MODEL,
+        messages,
+        max_tokens: 1000,
+        temperature: 0.85,
+        frequency_penalty: 0.3,
+        presence_penalty: 0.2,
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data?.choices?.[0]?.message?.content?.trim() ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // Konversi message DB ke format Groq/OpenAI (user/assistant alternating)
 function buildGroqHistory(
   dbMessages: Array<{ role: string; content: string }>,
@@ -174,7 +211,14 @@ export async function POST(request: NextRequest) {
   const modelsToTry = [PRIMARY_MODEL, ...FALLBACK_MODELS.filter((m) => m !== PRIMARY_MODEL)];
 
   let aiText: string | null = null;
+
+  // Coba OpenRouter dulu kalau API key di-set. Kalau gagal/null, fall back ke Groq chain.
+  if (OPENROUTER_API_KEY) {
+    aiText = await callOpenRouter(messages);
+  }
+
   outer: for (const model of modelsToTry) {
+    if (aiText) break;
     for (const key of GROQ_KEYS) {
       try {
         const groq = new Groq({ apiKey: key });
